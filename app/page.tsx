@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import FaqBot from './components/FaqBot'
 
 export default function HomePage() {
   const whatsappNumber = '2348168839382'
@@ -234,7 +235,7 @@ export default function HomePage() {
           </a>
         </div>
       </section>
-
+   <FaqBot /> 
     </main>
   )
 }
