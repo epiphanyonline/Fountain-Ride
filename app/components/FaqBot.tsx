@@ -7,47 +7,98 @@ const whatsappNumber = '2348168839382'
 const faqs = [
   {
     question: 'What areas do you cover?',
-    answer: 'We currently cover Lagos, Oyo State, and other South West states in Nigeria.',
+    answer:
+      'We currently cover Lagos, Oyo State, and other South West states in Nigeria.',
   },
   {
     question: 'Do you do airport pickup?',
-    answer: 'Yes. We provide airport pickup and drop-off services.',
+    answer:
+      'Yes. We provide airport pickup and drop-off services. Airport pickup bookings are completed via WhatsApp so we can properly confirm arrival details, destination, luggage, and pricing.',
   },
   {
     question: 'How much is daily hire?',
-    answer: 'Daily hire depends on the type of car. The average rate is around ₦150,000 per day.',
+    answer:
+      'Daily hire pricing depends on the type of vehicle and trip details. The average daily rate starts from around ₦150,000.',
+  },
+  {
+    question: 'How much is city-to-city travel?',
+    answer:
+      'City-to-city pricing varies based on the destination, distance, tolls, and trip duration. Average pricing starts from around ₦200,000.',
   },
   {
     question: 'What time is daily hire?',
-    answer: 'Daily hire runs from 8:00am to 8:00pm.',
+    answer:
+      'Our standard daily hire period runs from 8:00am to 8:00pm.',
   },
   {
-    question: 'Can I book city to city?',
-    answer: 'Yes. We support city-to-city trips within our covered locations.',
+    question: 'What happens if I need extra hours?',
+    answer:
+      'Additional hours beyond the agreed booking period may attract late or overtime charges depending on the vehicle and trip arrangement.',
+  },
+  {
+    question: 'Can I book city-to-city trips?',
+    answer:
+      'Yes. We support inter-state and city-to-city travel within covered South West locations and other selected destinations.',
   },
   {
     question: 'Is driver included?',
-    answer: 'Yes. All bookings come with a driver.',
+    answer:
+      'Yes. All bookings come with a licensed and professional driver.',
   },
   {
-    question: 'Can I book for my parents?',
-    answer: 'Yes. You can book for your parents, relatives, clients, or loved ones.',
+    question: 'Can I book for my parents or someone else?',
+    answer:
+      'Yes. You can arrange bookings for your parents, relatives, clients, friends, or loved ones.',
   },
   {
     question: 'Do you allow night movement?',
-    answer: 'No. Our standard service hours are 8:00am to 8:00pm.',
+    answer:
+      'Our standard operating hours are from 8:00am to 8:00pm. Trips outside these hours may only be available upon prior approval.',
   },
   {
     question: 'How do I reserve a car?',
-    answer: 'You can reserve a car by selecting your preferred vehicle online and submitting your booking request.',
+    answer:
+      'You can reserve a car online by selecting your preferred vehicle and submitting your trip details. Our team will then contact you to confirm availability and payment.',
+  },
+  {
+    question: 'Do I need an account to book?',
+    answer:
+      'No. You can book without creating an account. However, accurate contact details and an emergency contact may be required for identification and support purposes.',
   },
   {
     question: 'Can I pay deposit?',
-    answer: 'No. We currently accept full payment only.',
+    answer:
+      'We currently operate on full payment confirmation before trips are finalized.',
   },
   {
-    question: 'Are your drivers careful?',
-    answer: 'Yes. Our drivers are licensed, route-familiar, well-trained, and drive carefully.',
+    question: 'Is fuel included?',
+    answer:
+      'Vehicles are provided with at least a half tank of fuel at the start of the trip. Additional fuel usage during the trip becomes the customer’s responsibility.',
+  },
+  {
+    question: 'Are toll fees included?',
+    answer:
+      'No. Toll gate charges, parking tickets, and similar route-related fees are not included in the standard booking price.',
+  },
+  {
+    question: 'Who covers driver accommodation for interstate trips?',
+    answer:
+      'For interstate or overnight trips, the customer may be responsible for the driver’s accommodation and overnight allowance where applicable.',
+  },
+    {
+    question: 'Will the same driver stay throughout my trip?',
+    answer:
+      'For longer or multi-day bookings, there may occasionally be a change of driver where necessary to ensure safety, proper rest, and service quality.',
+  },
+  {
+    question: 'Are your drivers careful and experienced?',
+    answer:
+      'Yes. Our drivers are licensed, experienced, familiar with major routes, professionally trained, and committed to safe driving.',
+  },
+  {
+    question: 'What happens if I forget something in the vehicle?',
+    answer:
+      'Please contact us as soon as possible if you leave any item behind. While we will do our best to assist, customers are advised to check their belongings before ending each trip.',
   },
 ]
 
