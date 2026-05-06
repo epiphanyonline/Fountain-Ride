@@ -81,33 +81,41 @@ export default function HomePage() {
             </div>
 
             {/* RIGHT IMAGE */}
-            <div className="relative min-h-[420px] md:min-h-[580px]">
-              <img
-                src="https://mssizgzdewgutcmqdsim.supabase.co/storage/v1/object/public/images/Fountain%20Ride.png"
-                alt="Fountain Ride airport pickup"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+              <div className="relative min-h-[420px] md:min-h-[580px]">
+                <img
+                  src="https://mssizgzdewgutcmqdsim.supabase.co/storage/v1/object/public/images/Fountain%20Ride.png"
+                  alt="Fountain Ride airport pickup"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-              {/* SAFETY BADGE */}
-              <div className="absolute top-5 right-5 bg-purple-800 text-white p-5 rounded-2xl shadow-lg max-w-[220px]">
-                <p className="font-bold">Careful. Professional.</p>
-                <p className="text-sm mt-1 text-purple-100">
-                  We never overspeed.
-                </p>
+                {/* SAFETY BADGE */}
+                <div className="absolute top-4 right-4 md:top-5 md:right-5 bg-purple-800 text-white px-4 py-3 md:p-5 rounded-2xl shadow-lg max-w-[180px] md:max-w-[220px]">
+                  <p className="font-bold text-base md:text-lg leading-tight">
+                    Careful. Professional.
+                  </p>
+
+                  <p className="text-xs md:text-sm mt-1 text-purple-100">
+                    We never overspeed.
+                  </p>
+                </div>
+
+                {/* BOTTOM MESSAGE */}
+                <div className="absolute bottom-4 left-4 right-4 md:bottom-5 md:left-5 md:right-5 bg-white/95 backdrop-blur rounded-2xl md:rounded-3xl p-4 md:p-5 shadow">
+                  <p className="text-sm font-bold text-purple-700">
+                    Daily Hire: 8am – 8pm
+                  </p>
+
+                  <p className="text-2xl md:text-xl font-black mt-1 leading-tight">
+                    Need more time?
+                  </p>
+
+                  <p className="text-base md:text-lg font-semibold text-gray-700 mt-1">
+                    Extended hours available.
+                  </p>
+                </div>
               </div>
-
-              {/* BOTTOM MESSAGE */}
-              <div className="absolute bottom-5 left-5 right-5 bg-white/95 backdrop-blur rounded-3xl p-5 shadow">
-                <p className="text-sm font-bold text-purple-700">
-                  Daily Hire: 8am – 8pm
-                </p>
-                <p className="text-xl font-black mt-1">
-                  Need more time? Extended hours available.
-                </p>
-              </div>
-            </div>
 
           </div>
         </div>
