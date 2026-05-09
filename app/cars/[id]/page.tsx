@@ -7,14 +7,24 @@ import { formatNaira } from '../../../lib/format'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
+function getCarImages(car: any): string[] {
+  if (Array.isArray(car.image_urls) && car.image_urls.length > 0) {
+    return car.image_urls.filter(Boolean)
+  }
+
+  if (car.image_url) return [car.image_url]
+
+  return []
+}
+
 export default function CarDetailsPage() {
   const params = useParams()
   const carId = params.id as string
-
   const whatsappNumber = '2348168839382'
 
   const [car, setCar] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedImage, setSelectedImage] = useState('')
 
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
     null,
@@ -49,6 +59,10 @@ export default function CarDetailsPage() {
     if (error) console.error(error)
 
     setCar(data)
+
+    const images = getCarImages(data)
+    setSelectedImage(images[0] || '')
+
     setLoading(false)
   }
 
@@ -102,6 +116,7 @@ export default function CarDetailsPage() {
   }, [pickupDate, returnDate])
 
   const totalAmount = car ? totalDays * Number(car.daily_rate || 0) : 0
+  const carImages = car ? getCarImages(car) : []
 
   async function submitBooking() {
     setSubmitting(true)
@@ -242,26 +257,84 @@ Please confirm my booking.`
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-8">
+      <div className="max-w-6xl mx-auto p-4 md:p-6 grid md:grid-cols-2 gap-8">
         <div>
-          <img
-            src={car.image_url}
-            alt={car.name}
-            className="w-full h-80 object-cover rounded-3xl shadow"
-          />
+          <div className="bg-white rounded-3xl shadow overflow-hidden">
+            {selectedImage ? (
+              <img
+                src={selectedImage}
+                alt={car.name}
+                className="w-full h-80 md:h-[28rem] object-cover"
+              />
+            ) : (
+              <div className="w-full h-80 md:h-[28rem] bg-gray-100 flex items-center justify-center">
+                <p className="text-gray-400 font-semibold">
+                  Image coming soon
+                </p>
+              </div>
+            )}
+          </div>
 
-          <h1 className="text-3xl font-bold mt-6">{car.name}</h1>
+          {carImages.length > 1 && (
+            <div className="grid grid-cols-4 md:grid-cols-5 gap-3 mt-4">
+              {carImages.map((url: string, index: number) => (
+                <button
+                  key={`${url}-${index}`}
+                  type="button"
+                  onClick={() => setSelectedImage(url)}
+                  className={`h-20 rounded-2xl overflow-hidden border-2 ${
+                    selectedImage === url
+                      ? 'border-purple-700'
+                      : 'border-transparent'
+                  }`}
+                >
+                  <img
+                    src={url}
+                    alt={`${car.name} ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
 
-          <p className="text-gray-500 mt-2">
-            {car.transmission} • {car.fuel_type} • {car.seats} seats
-          </p>
+          <div className="mt-6 bg-white rounded-3xl shadow p-6">
+            <p className="text-sm font-bold text-purple-700">
+              Chauffeur-driven car hire
+            </p>
 
-          <p className="text-2xl font-bold mt-4">
-            {formatNaira(car.daily_rate)} / day
-          </p>
+            <h1 className="text-3xl font-bold mt-2">{car.name}</h1>
+
+            <p className="text-gray-500 mt-2">
+              {car.transmission || 'Automatic'} • {car.fuel_type || 'Petrol'} •{' '}
+              {car.seats || 5} seats
+            </p>
+
+            <p className="text-2xl font-bold mt-4">
+              {formatNaira(car.daily_rate)} / day
+            </p>
+
+            {car.description && (
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                {car.description}
+              </p>
+            )}
+
+            <div className="grid grid-cols-2 gap-3 mt-5 text-sm">
+              <div className="bg-purple-50 rounded-2xl p-4">
+                <p className="font-bold">Driver included</p>
+                <p className="text-gray-500 mt-1">Professional service</p>
+              </div>
+
+              <div className="bg-purple-50 rounded-2xl p-4">
+                <p className="font-bold">Daily hire</p>
+                <p className="text-gray-500 mt-1">8am to 8pm</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow p-6">
+        <div className="bg-white rounded-3xl shadow p-6 h-fit">
           <h2 className="text-2xl font-semibold">Reserve Your Ride</h2>
 
           <p className="text-gray-500 mt-1">

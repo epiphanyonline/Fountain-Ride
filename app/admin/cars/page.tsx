@@ -5,6 +5,23 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { formatNaira } from '../../../lib/format'
 
+function parseImageUrls(value: string) {
+  return value
+    .split('\n')
+    .map((url) => url.trim())
+    .filter(Boolean)
+}
+
+function getCarImages(car: any) {
+  if (Array.isArray(car.image_urls) && car.image_urls.length > 0) {
+    return car.image_urls.filter(Boolean)
+  }
+
+  if (car.image_url) return [car.image_url]
+
+  return []
+}
+
 export default function AdminCarsPage() {
   const router = useRouter()
 
@@ -25,7 +42,7 @@ export default function AdminCarsPage() {
     seats: '',
     daily_rate: '',
     deposit_amount: '',
-    image_url: '',
+    image_urls: '',
     status: 'available',
     description: '',
   })
@@ -68,6 +85,8 @@ export default function AdminCarsPage() {
       return
     }
 
+    const imageUrls = parseImageUrls(form.image_urls)
+
     const { error } = await supabase.from('cars').insert({
       name: form.name.trim(),
       brand: form.brand.trim(),
@@ -79,7 +98,8 @@ export default function AdminCarsPage() {
       seats: form.seats ? Number(form.seats) : null,
       daily_rate: Number(form.daily_rate),
       deposit_amount: form.deposit_amount ? Number(form.deposit_amount) : 0,
-      image_url: form.image_url.trim(),
+      image_url: imageUrls[0] || '',
+      image_urls: imageUrls,
       status: form.status,
       description: form.description.trim(),
     })
@@ -102,7 +122,7 @@ export default function AdminCarsPage() {
       seats: '',
       daily_rate: '',
       deposit_amount: '',
-      image_url: '',
+      image_urls: '',
       status: 'available',
       description: '',
     })
@@ -112,10 +132,7 @@ export default function AdminCarsPage() {
   }
 
   async function updateStatus(id: string, status: string) {
-    const { error } = await supabase
-      .from('cars')
-      .update({ status })
-      .eq('id', id)
+    const { error } = await supabase.from('cars').update({ status }).eq('id', id)
 
     if (error) {
       console.error(error)
@@ -149,22 +166,32 @@ export default function AdminCarsPage() {
     fetchCars()
   }
 
-  async function updateImage(id: string) {
-    const newImage = imageUpdates[id]
+  async function updateImages(id: string) {
+    const newImagesText = imageUpdates[id]
 
-    if (!newImage) {
-      alert('Enter a new image URL.')
+    if (!newImagesText) {
+      alert('Enter at least one image URL.')
+      return
+    }
+
+    const imageUrls = parseImageUrls(newImagesText)
+
+    if (imageUrls.length === 0) {
+      alert('Enter at least one valid image URL.')
       return
     }
 
     const { error } = await supabase
       .from('cars')
-      .update({ image_url: newImage.trim() })
+      .update({
+        image_url: imageUrls[0],
+        image_urls: imageUrls,
+      })
       .eq('id', id)
 
     if (error) {
       console.error(error)
-      alert('Could not update image.')
+      alert('Could not update images.')
       return
     }
 
@@ -182,13 +209,14 @@ export default function AdminCarsPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-purple-700">Fleet Management</p>
+            <p className="text-sm font-semibold text-purple-700">
+              Fleet Management
+            </p>
             <h1 className="text-4xl font-bold mt-2">Manage Cars</h1>
             <p className="text-gray-500 mt-2">
-              Add cars, update prices, change images, and control vehicle availability.
+              Add cars, update prices, add multiple images, and control vehicle availability.
             </p>
           </div>
 
@@ -201,11 +229,10 @@ export default function AdminCarsPage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-
           <div className="bg-white rounded-3xl shadow p-6 lg:col-span-1">
             <h2 className="text-2xl font-bold">Add New Car</h2>
             <p className="text-gray-500 text-sm mt-1">
-              Prices should be entered in naira. Example: 140000.
+              Add one image URL per line. The first image becomes the main display image.
             </p>
 
             <div className="grid gap-3 mt-5">
@@ -232,7 +259,13 @@ export default function AdminCarsPage() {
               <input className="border p-3 rounded-xl" placeholder="Seats" value={form.seats} onChange={(e) => updateForm('seats', e.target.value)} />
               <input className="border p-3 rounded-xl" placeholder="Daily rate in naira e.g. 140000" value={form.daily_rate} onChange={(e) => updateForm('daily_rate', e.target.value)} />
               <input className="border p-3 rounded-xl" placeholder="Deposit amount optional" value={form.deposit_amount} onChange={(e) => updateForm('deposit_amount', e.target.value)} />
-              <input className="border p-3 rounded-xl" placeholder="Image URL" value={form.image_url} onChange={(e) => updateForm('image_url', e.target.value)} />
+
+              <textarea
+                className="border p-3 rounded-xl min-h-32"
+                placeholder={`Image URLs, one per line:\nhttps://example.com/front.jpg\nhttps://example.com/interior.jpg\nhttps://example.com/back-seat.jpg`}
+                value={form.image_urls}
+                onChange={(e) => updateForm('image_urls', e.target.value)}
+              />
 
               <select className="border p-3 rounded-xl" value={form.status} onChange={(e) => updateForm('status', e.target.value)}>
                 <option value="available">Available</option>
@@ -253,101 +286,129 @@ export default function AdminCarsPage() {
           </div>
 
           <div className="lg:col-span-2 grid md:grid-cols-2 gap-5">
-            {cars.map((car) => (
-              <div key={car.id} className="bg-white rounded-3xl shadow overflow-hidden">
-                <img
-                  src={car.image_url}
-                  alt={car.name}
-                  className="w-full h-48 object-cover bg-gray-100"
-                />
+            {cars.map((car) => {
+              const images = getCarImages(car)
+              const mainImage = images[0]
 
-                <div className="p-5">
-                  <div className="flex justify-between gap-3">
-                    <div>
-                      <h2 className="text-xl font-bold">{car.name}</h2>
-                      <p className="text-gray-500 text-sm">
-                        {car.transmission} • {car.fuel_type} • {car.seats} seats
+              return (
+                <div key={car.id} className="bg-white rounded-3xl shadow overflow-hidden">
+                  {mainImage ? (
+                    <img
+                      src={mainImage}
+                      alt={car.name}
+                      className="w-full h-48 object-cover bg-gray-100"
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+                      <p className="text-sm text-gray-400 font-semibold">
+                        No image added
                       </p>
                     </div>
+                  )}
 
-                    <span className="h-fit text-xs px-3 py-1 rounded-full bg-purple-100 text-purple-700 font-semibold">
-                      {car.status}
-                    </span>
-                  </div>
+                  {images.length > 1 && (
+                    <div className="px-4 pt-3 grid grid-cols-5 gap-2">
+                      {images.slice(0, 5).map((url: string, index: number) => (
+                        <img
+                          key={`${url}-${index}`}
+                          src={url}
+                          alt={`${car.name} ${index + 1}`}
+                          className="h-14 w-full object-cover rounded-xl bg-gray-100"
+                        />
+                      ))}
+                    </div>
+                  )}
 
-                  <p className="text-2xl font-bold mt-4">
-                    {formatNaira(car.daily_rate)} / day
-                  </p>
+                  <div className="p-5">
+                    <div className="flex justify-between gap-3">
+                      <div>
+                        <h2 className="text-xl font-bold">{car.name}</h2>
+                        <p className="text-gray-500 text-sm">
+                          {car.transmission} • {car.fuel_type} • {car.seats} seats
+                        </p>
+                        <p className="text-xs text-purple-700 font-semibold mt-1">
+                          {images.length} image{images.length === 1 ? '' : 's'}
+                        </p>
+                      </div>
 
-                  <div className="mt-4">
-                    <input
-                      type="number"
-                      placeholder="New daily price e.g. 140000"
-                      value={priceUpdates[car.id] || ''}
-                      onChange={(e) =>
-                        setPriceUpdates((prev) => ({
-                          ...prev,
-                          [car.id]: e.target.value,
-                        }))
-                      }
-                      className="border p-3 rounded-xl w-full"
-                    />
+                      <span className="h-fit text-xs px-3 py-1 rounded-full bg-purple-100 text-purple-700 font-semibold">
+                        {car.status}
+                      </span>
+                    </div>
 
-                    <button
-                      onClick={() => updatePrice(car.id)}
-                      className="mt-2 w-full bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-xl font-semibold"
-                    >
-                      Update Price
-                    </button>
-                  </div>
+                    <p className="text-2xl font-bold mt-4">
+                      {formatNaira(car.daily_rate)} / day
+                    </p>
 
-                  <div className="mt-4">
-                    <input
-                      type="text"
-                      placeholder="New image URL"
-                      value={imageUpdates[car.id] || ''}
-                      onChange={(e) =>
-                        setImageUpdates((prev) => ({
-                          ...prev,
-                          [car.id]: e.target.value,
-                        }))
-                      }
-                      className="border p-3 rounded-xl w-full"
-                    />
+                    <div className="mt-4">
+                      <input
+                        type="number"
+                        placeholder="New daily price e.g. 140000"
+                        value={priceUpdates[car.id] || ''}
+                        onChange={(e) =>
+                          setPriceUpdates((prev) => ({
+                            ...prev,
+                            [car.id]: e.target.value,
+                          }))
+                        }
+                        className="border p-3 rounded-xl w-full"
+                      />
 
-                    <button
-                      onClick={() => updateImage(car.id)}
-                      className="mt-2 w-full bg-gray-900 hover:bg-black text-white py-2 rounded-xl font-semibold"
-                    >
-                      Update Image
-                    </button>
-                  </div>
+                      <button
+                        onClick={() => updatePrice(car.id)}
+                        className="mt-2 w-full bg-purple-700 hover:bg-purple-800 text-white py-2 rounded-xl font-semibold"
+                      >
+                        Update Price
+                      </button>
+                    </div>
 
-                  <div className="grid grid-cols-3 gap-2 mt-5">
-                    <button
-                      onClick={() => updateStatus(car.id, 'available')}
-                      className="bg-green-600 text-white py-2 rounded-xl text-sm font-semibold"
-                    >
-                      Available
-                    </button>
+                    <div className="mt-4">
+                      <textarea
+                        placeholder={`Replace image URLs, one per line.\nFirst URL becomes main image.`}
+                        value={imageUpdates[car.id] || ''}
+                        onChange={(e) =>
+                          setImageUpdates((prev) => ({
+                            ...prev,
+                            [car.id]: e.target.value,
+                          }))
+                        }
+                        className="border p-3 rounded-xl w-full min-h-28"
+                      />
 
-                    <button
-                      onClick={() => updateStatus(car.id, 'maintenance')}
-                      className="bg-orange-500 text-white py-2 rounded-xl text-sm font-semibold"
-                    >
-                      Maintain
-                    </button>
+                      <button
+                        onClick={() => updateImages(car.id)}
+                        className="mt-2 w-full bg-gray-900 hover:bg-black text-white py-2 rounded-xl font-semibold"
+                      >
+                        Update Images
+                      </button>
+                    </div>
 
-                    <button
-                      onClick={() => updateStatus(car.id, 'hidden')}
-                      className="bg-gray-900 text-white py-2 rounded-xl text-sm font-semibold"
-                    >
-                      Hide
-                    </button>
+                    <div className="grid grid-cols-3 gap-2 mt-5">
+                      <button
+                        onClick={() => updateStatus(car.id, 'available')}
+                        className="bg-green-600 text-white py-2 rounded-xl text-sm font-semibold"
+                      >
+                        Available
+                      </button>
+
+                      <button
+                        onClick={() => updateStatus(car.id, 'maintenance')}
+                        className="bg-orange-500 text-white py-2 rounded-xl text-sm font-semibold"
+                      >
+                        Maintain
+                      </button>
+
+                      <button
+                        onClick={() => updateStatus(car.id, 'hidden')}
+                        className="bg-gray-900 text-white py-2 rounded-xl text-sm font-semibold"
+                      >
+                        Hide
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
 
             {cars.length === 0 && (
               <div className="bg-white rounded-3xl shadow p-8 text-center md:col-span-2">
@@ -358,7 +419,6 @@ export default function AdminCarsPage() {
               </div>
             )}
           </div>
-
         </div>
       </div>
     </div>
