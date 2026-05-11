@@ -7,6 +7,14 @@ import { formatNaira } from '../../../lib/format'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
+const EXTRA_HOUR_RATE = 15000
+
+const cityPackageLabels: Record<string, string> = {
+  drop_off_only: 'City-to-city drop off only',
+  city_to_city_12hrs: 'City-to-city 12 hours',
+  city_to_city_24hrs: 'City-to-city 24 hours',
+}
+
 function getCarImages(car: any): string[] {
   if (Array.isArray(car.image_urls) && car.image_urls.length > 0) {
     return car.image_urls.filter(Boolean)
@@ -17,14 +25,27 @@ function getCarImages(car: any): string[] {
   return []
 }
 
+function getMinimumPickupDate() {
+  const date = new Date()
+  date.setDate(date.getDate() + 2)
+  date.setHours(0, 0, 0, 0)
+  return date
+}
+
 export default function CarDetailsPage() {
   const params = useParams()
   const carId = params.id as string
   const whatsappNumber = '2348168839382'
 
   const [car, setCar] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [routePrices, setRoutePrices] = useState<any[]>([])
   const [selectedImage, setSelectedImage] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  const [tripType, setTripType] = useState('daily_hire')
+  const [cityPackageType, setCityPackageType] = useState('drop_off_only')
+  const [selectedRouteId, setSelectedRouteId] = useState('')
+  const [extraHours, setExtraHours] = useState('0')
 
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
     null,
@@ -44,9 +65,12 @@ export default function CarDetailsPage() {
   const [message, setMessage] = useState('')
   const [whatsappLink, setWhatsappLink] = useState('')
 
+  const minimumPickupDate = getMinimumPickupDate()
+
   useEffect(() => {
     fetchCar()
     fetchBookedDates()
+    fetchRoutePrices()
   }, [])
 
   async function fetchCar() {
@@ -64,6 +88,22 @@ export default function CarDetailsPage() {
     setSelectedImage(images[0] || '')
 
     setLoading(false)
+  }
+
+  async function fetchRoutePrices() {
+    const { data, error } = await supabase
+      .from('route_prices')
+      .select('*')
+      .eq('is_active', true)
+      .order('destination', { ascending: true })
+
+    if (error) {
+      console.error(error)
+      setRoutePrices([])
+      return
+    }
+
+    setRoutePrices(data || [])
   }
 
   async function fetchBookedDates() {
@@ -105,6 +145,17 @@ export default function CarDetailsPage() {
     return false
   }
 
+  const filteredRoutePrices = useMemo(() => {
+    return routePrices.filter((route) => route.package_type === cityPackageType)
+  }, [routePrices, cityPackageType])
+
+  const selectedRoute = useMemo(() => {
+    return routePrices.find((route) => route.id === selectedRouteId)
+  }, [routePrices, selectedRouteId])
+
+  const priceOnRequest =
+    tripType !== 'daily_hire' && selectedRoute?.price_on_request === true
+
   const totalDays = useMemo(() => {
     if (!pickupDate || !returnDate) return 0
 
@@ -115,7 +166,18 @@ export default function CarDetailsPage() {
     return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)))
   }, [pickupDate, returnDate])
 
-  const totalAmount = car ? totalDays * Number(car.daily_rate || 0) : 0
+  const extraHoursAmount = Number(extraHours || 0) * EXTRA_HOUR_RATE
+
+  const baseAmount =
+    tripType !== 'daily_hire'
+      ? priceOnRequest
+        ? 0
+        : Number(selectedRoute?.price || 0)
+      : car
+        ? totalDays * Number(car.daily_rate || 0)
+        : 0
+
+  const totalAmount = priceOnRequest ? 0 : baseAmount + extraHoursAmount
   const carImages = car ? getCarImages(car) : []
 
   async function submitBooking() {
@@ -133,6 +195,18 @@ export default function CarDetailsPage() {
       !pickupLocation
     ) {
       setMessage('Please fill all required fields.')
+      setSubmitting(false)
+      return
+    }
+
+    if (pickupDate < minimumPickupDate) {
+      setMessage('Bookings require at least 48 hours advance notice.')
+      setSubmitting(false)
+      return
+    }
+
+    if (tripType !== 'daily_hire' && !selectedRoute) {
+      setMessage('Please select your city-to-city route.')
       setSubmitting(false)
       return
     }
@@ -207,6 +281,18 @@ export default function CarDetailsPage() {
       daily_rate: car.daily_rate,
       total_amount: totalAmount,
       status: 'pending',
+      trip_type: tripType,
+      city_package_type: tripType !== 'daily_hire' ? cityPackageType : null,
+      route_origin: tripType !== 'daily_hire' ? selectedRoute.origin : null,
+      route_destination:
+        tripType !== 'daily_hire' ? selectedRoute.destination : null,
+      route_price:
+        tripType !== 'daily_hire' && !priceOnRequest
+          ? selectedRoute.price
+          : 0,
+      price_on_request: priceOnRequest,
+      extra_hours: Number(extraHours || 0),
+      extra_hour_rate: EXTRA_HOUR_RATE,
     })
 
     if (bookingError) {
@@ -216,12 +302,28 @@ export default function CarDetailsPage() {
       return
     }
 
+    const packageText =
+      tripType === 'daily_hire'
+        ? 'Daily hire within city'
+        : cityPackageLabels[cityPackageType]
+
+    const routeText =
+      tripType !== 'daily_hire' && selectedRoute
+        ? `${selectedRoute.origin} to ${selectedRoute.destination}`
+        : 'Daily hire'
+
+    const priceText = priceOnRequest
+      ? 'Price to be confirmed on WhatsApp'
+      : formatNaira(totalAmount)
+
     const whatsappMessage = encodeURIComponent(
       `Hello, I just submitted a car hire booking request.
 
 Booking Ref: ${bookingRef}
 Brand: Epiphany Ride / Fountain Ride
 Car: ${car.name}
+Trip Type: ${packageText}
+Route: ${routeText}
 Pickup Date: ${pickupDateStr}
 Pickup Time: ${pickupTime}
 Return Date: ${returnDateStr}
@@ -230,7 +332,9 @@ Pickup Location: ${pickupLocation.trim()}
 Name: ${fullName.trim()}
 Phone: ${phone.trim()}
 WhatsApp: ${whatsapp.trim() || phone.trim()}
-Total: ${formatNaira(totalAmount)}
+Extra Hours: ${extraHours || 0}
+Extra Hour Rate: ${formatNaira(EXTRA_HOUR_RATE)}
+Price: ${priceText}
 
 Please confirm my booking.`
     )
@@ -247,6 +351,10 @@ Please confirm my booking.`
     setPhone('')
     setWhatsapp('')
     setPickupLocation('')
+    setTripType('daily_hire')
+    setCityPackageType('drop_off_only')
+    setSelectedRouteId('')
+    setExtraHours('0')
     setSubmitting(false)
 
     fetchBookedDates()
@@ -314,6 +422,14 @@ Please confirm my booking.`
               {formatNaira(car.daily_rate)} / day
             </p>
 
+            <div className="mt-4 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
+              <p className="font-bold">Important booking notice</p>
+              <p className="mt-1">
+                48 hours advance notice required. Daily hire is 8am–8pm.
+                Extra hour is {formatNaira(EXTRA_HOUR_RATE)} per hour.
+              </p>
+            </div>
+
             {car.description && (
               <p className="text-gray-600 mt-4 leading-relaxed">
                 {car.description}
@@ -341,6 +457,94 @@ Please confirm my booking.`
             Select pickup and return dates. Unavailable dates are blocked.
           </p>
 
+          <div className="mt-4 rounded-2xl bg-purple-50 p-4 text-sm">
+            <p className="font-bold text-purple-900">Booking policy</p>
+            <p className="text-gray-600 mt-1">
+              Please book at least 48 hours ahead. Extra hours are charged at{' '}
+              <b>{formatNaira(EXTRA_HOUR_RATE)}</b> per hour.
+            </p>
+          </div>
+
+          <div className="mt-5">
+            <label className="text-sm font-bold text-gray-700">Trip type</label>
+
+            <select
+              value={tripType}
+              onChange={(e) => {
+                setTripType(e.target.value)
+                setSelectedRouteId('')
+                setMessage('')
+                setWhatsappLink('')
+              }}
+              className="border p-3 rounded-xl w-full mt-2"
+            >
+              <option value="daily_hire">Daily hire within city</option>
+              <option value="drop_off_only">City-to-city drop off only</option>
+              <option value="city_to_city_12hrs">City-to-city 12 hours</option>
+              <option value="city_to_city_24hrs">City-to-city 24 hours</option>
+            </select>
+          </div>
+
+          {tripType !== 'daily_hire' && (
+            <div className="mt-4">
+              <label className="text-sm font-bold text-gray-700">
+                Select route
+              </label>
+
+              <select
+                value={selectedRouteId}
+                onChange={(e) => {
+                  setSelectedRouteId(e.target.value)
+                  setMessage('')
+                  setWhatsappLink('')
+                }}
+                className="border p-3 rounded-xl w-full mt-2"
+              >
+                <option value="">Choose destination</option>
+                {routePrices
+                  .filter((route: any) => route.package_type === tripType)
+                  .map((route: any) => (
+                    <option key={route.id} value={route.id}>
+                      {route.origin} to {route.destination} —{' '}
+                      {route.price_on_request
+                        ? 'Complete booking via WhatsApp for actual price'
+                        : formatNaira(route.price)}
+                    </option>
+                  ))}
+              </select>
+
+              {selectedRoute && (
+                <div className="mt-3 bg-gray-50 rounded-2xl p-4">
+                  <p className="font-bold">
+                    {selectedRoute.origin} to {selectedRoute.destination}
+                  </p>
+
+                  {selectedRoute.price_on_request ? (
+                    <div>
+                      <p className="text-lg font-black mt-1 text-purple-700">
+                        Complete booking via WhatsApp for actual price
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Pricing may depend on exact location, vehicle type,
+                        waiting time, and trip details.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-2xl font-black mt-1">
+                      {formatNaira(selectedRoute.price)}
+                    </p>
+                  )}
+
+                  {selectedRoute.notes && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      {selectedRoute.notes}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="mt-4">
             <DatePicker
               selectsRange
@@ -348,6 +552,12 @@ Please confirm my booking.`
               endDate={returnDate}
               onChange={(update: [Date | null, Date | null]) => {
                 const [start, end] = update
+
+                if (start && start < minimumPickupDate) {
+                  setMessage('Bookings require at least 48 hours advance notice.')
+                  setDateRange([null, null])
+                  return
+                }
 
                 if (start && end && rangeContainsBookedDate(start, end)) {
                   setMessage(
@@ -362,7 +572,7 @@ Please confirm my booking.`
                 setDateRange(update)
               }}
               filterDate={(date: Date) => !isDateBooked(date)}
-              minDate={new Date()}
+              minDate={minimumPickupDate}
               placeholderText="Select pickup and return dates"
               className="border p-3 rounded-xl w-full"
             />
@@ -392,6 +602,15 @@ Please confirm my booking.`
           />
 
           <input
+            type="number"
+            min="0"
+            className="border p-3 rounded-xl w-full mt-4"
+            placeholder="Extra hours optional"
+            value={extraHours}
+            onChange={(e) => setExtraHours(e.target.value)}
+          />
+
+          <input
             className="border p-3 rounded-xl w-full mt-4"
             placeholder="Full name"
             value={fullName}
@@ -416,9 +635,40 @@ Please confirm my booking.`
             <p>
               Total days: <b>{totalDays}</b>
             </p>
+
             <p>
-              Total: <b>{formatNaira(totalAmount)}</b>
+              Base price:{' '}
+              <b>
+                {priceOnRequest
+                  ? 'To be confirmed on WhatsApp'
+                  : tripType !== 'daily_hire'
+                    ? selectedRoute
+                      ? formatNaira(selectedRoute.price)
+                      : formatNaira(0)
+                    : formatNaira(baseAmount)}
+              </b>
             </p>
+
+            {!priceOnRequest && (
+              <>
+                <p>
+                  Extra hours:{' '}
+                  <b>
+                    {extraHours || 0} × {formatNaira(EXTRA_HOUR_RATE)}
+                  </b>
+                </p>
+
+                <p className="text-xl mt-2">
+                  Total: <b>{formatNaira(totalAmount)}</b>
+                </p>
+              </>
+            )}
+
+            {priceOnRequest && (
+              <p className="text-sm text-purple-700 font-semibold mt-2">
+                Please submit your request and complete pricing on WhatsApp.
+              </p>
+            )}
           </div>
 
           <button
