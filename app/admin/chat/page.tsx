@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { fountainFaqs } from '../../components/FaqBot'
 
 type Conversation = {
   id: string
@@ -48,7 +49,9 @@ export default function AdminChatPage() {
           schema: 'public',
           table: 'chat_conversations',
         },
-        () => fetchConversations()
+        () => {
+          fetchConversations()
+        }
       )
       .subscribe()
 
@@ -136,7 +139,9 @@ export default function AdminChatPage() {
   async function markAdminRead(conversationId: string) {
     await supabase
       .from('chat_conversations')
-      .update({ unread_admin_count: 0 })
+      .update({
+        unread_admin_count: 0,
+      })
       .eq('id', conversationId)
 
     fetchConversations()
@@ -147,11 +152,17 @@ export default function AdminChatPage() {
     await markAdminRead(conv.id)
   }
 
-  async function sendReply() {
-    if (!selected || !reply.trim()) return
+  async function sendReply(customText?: string) {
+    if (!selected) return
 
-    const text = reply.trim()
-    setReply('')
+    const text = customText || reply.trim()
+
+    if (!text) return
+
+    if (!customText) {
+      setReply('')
+    }
+
     setSending(true)
 
     const { error: messageError } = await supabase.from('chat_messages').insert({
@@ -241,7 +252,7 @@ export default function AdminChatPage() {
           </h1>
 
           <p className="text-gray-600 mt-2">
-            View enquiries, track unread messages, and reply to customers in real time.
+            Manage customer enquiries and support conversations in real time.
           </p>
         </div>
 
@@ -250,7 +261,9 @@ export default function AdminChatPage() {
             <div className="p-5 border-b flex items-center justify-between">
               <div>
                 <h2 className="font-black text-xl">Conversations</h2>
-                <p className="text-xs text-gray-500">Latest customer chats</p>
+                <p className="text-xs text-gray-500">
+                  Latest customer chats
+                </p>
               </div>
 
               <button
@@ -321,7 +334,9 @@ export default function AdminChatPage() {
                       </p>
 
                       <p className="text-xs text-gray-400">
-                        {new Date(conv.updated_at || conv.created_at).toLocaleString()}
+                        {new Date(
+                          conv.updated_at || conv.created_at
+                        ).toLocaleString()}
                       </p>
                     </div>
                   </button>
@@ -334,53 +349,90 @@ export default function AdminChatPage() {
             {!selected ? (
               <div className="h-full min-h-[620px] flex items-center justify-center text-center p-8">
                 <div>
-                  <h2 className="text-2xl font-black">Select a conversation</h2>
+                  <h2 className="text-2xl font-black">
+                    Select a conversation
+                  </h2>
+
                   <p className="text-gray-500 mt-2">
-                    Choose a customer chat from the list to view and reply.
+                    Choose a customer chat to view and reply.
                   </p>
                 </div>
               </div>
             ) : (
               <>
-                <div className="p-5 border-b flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-2xl font-black">
-                        {selected.customer_name || 'Customer'}
-                      </h2>
+                <div className="p-5 border-b flex flex-col gap-4">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h2 className="text-2xl font-black">
+                          {selected.customer_name || 'Customer'}
+                        </h2>
 
-                      <span
-                        className={`text-xs font-bold rounded-full px-2 py-1 ${
-                          selected.status === 'closed'
-                            ? 'bg-gray-200 text-gray-600'
-                            : 'bg-green-100 text-green-700'
-                        }`}
-                      >
-                        {selected.status || 'open'}
-                      </span>
+                        <span
+                          className={`text-xs font-bold rounded-full px-2 py-1 ${
+                            selected.status === 'closed'
+                              ? 'bg-gray-200 text-gray-600'
+                              : 'bg-green-100 text-green-700'
+                          }`}
+                        >
+                          {selected.status || 'open'}
+                        </span>
+                      </div>
+
+                      <p className="text-gray-500 mt-1">
+                        {selected.customer_phone || 'No phone provided'}
+                      </p>
                     </div>
 
-                    <p className="text-gray-500 mt-1">
-                      {selected.customer_phone || 'No phone provided'}
-                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {selected.customer_phone && (
+                        <a
+                          href={`https://wa.me/${selected.customer_phone.replace(
+                            /\D/g,
+                            ''
+                          )}`}
+                          target="_blank"
+                        >
+                          <button className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold">
+                            WhatsApp
+                          </button>
+                        </a>
+                      )}
+
+                      {selected.status === 'closed' ? (
+                        <button
+                          onClick={reopenConversation}
+                          className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold"
+                        >
+                          Reopen
+                        </button>
+                      ) : (
+                        <button
+                          onClick={closeConversation}
+                          className="bg-gray-950 text-white px-4 py-2 rounded-xl font-bold"
+                        >
+                          Close
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex gap-2">
-                    {selected.status === 'closed' ? (
-                      <button
-                        onClick={reopenConversation}
-                        className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold"
-                      >
-                        Reopen
-                      </button>
-                    ) : (
-                      <button
-                        onClick={closeConversation}
-                        className="bg-gray-950 text-white px-4 py-2 rounded-xl font-bold"
-                      >
-                        Close
-                      </button>
-                    )}
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 mb-2">
+                      QUICK FAQ REPLIES
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {fountainFaqs.slice(0, 6).map((faq) => (
+                        <button
+                          key={faq.question}
+                          onClick={() => sendReply(faq.answer)}
+                          className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-2 rounded-full font-bold"
+                        >
+                          {faq.question}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -426,7 +478,7 @@ export default function AdminChatPage() {
 
                   <button
                     disabled={sending || selected.status === 'closed'}
-                    onClick={sendReply}
+                    onClick={() => sendReply()}
                     className="bg-purple-700 hover:bg-purple-800 disabled:bg-purple-300 text-white px-5 md:px-6 rounded-2xl font-bold"
                   >
                     {sending ? '...' : 'Send'}

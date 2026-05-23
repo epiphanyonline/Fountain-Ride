@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 const whatsappNumber = '2348168839382'
 
-const faqs = [
+export const fountainFaqs = [
   {
     question: 'What areas do you cover?',
     answer:
@@ -13,57 +13,40 @@ const faqs = [
   {
     question: 'Do you do airport pickup?',
     answer:
-      'Yes. We provide airport pickup and drop-off services. Airport pickup bookings are completed via WhatsApp so we can properly confirm arrival details, destination, luggage, and pricing.',
+      'Yes. We provide airport pickup and drop-off services. Airport pickup bookings are completed via WhatsApp so we can confirm arrival details, destination, luggage and pricing.',
   },
   {
     question: 'How much is daily hire?',
     answer:
-      'Daily hire pricing depends on the type of vehicle and trip details. The average daily rate starts from around ₦150,000.',
+      'Daily hire pricing depends on the vehicle and trip details. The average daily rate starts from around ₦150,000.',
   },
   {
     question: 'How much is city-to-city travel?',
     answer:
-      'City-to-city pricing varies based on the destination, distance, tolls, and trip duration. Average pricing starts from around ₦200,000.',
+      'City-to-city pricing varies by destination, distance, tolls and trip duration. Average pricing starts from around ₦200,000.',
   },
   {
     question: 'What time is daily hire?',
-    answer:
-      'Our standard daily hire period runs from 8:00am to 8:00pm.',
+    answer: 'Our standard daily hire period runs from 8:00am to 8:00pm.',
   },
   {
     question: 'What happens if I need extra hours?',
     answer:
-      'Additional hours beyond the agreed booking period may attract late or overtime charges depending on the vehicle and trip arrangement.',
-  },
-  {
-    question: 'Can I book city-to-city trips?',
-    answer:
-      'Yes. We support inter-state and city-to-city travel within covered South West locations and other selected destinations.',
+      'Extra hours beyond the agreed booking period attract a standard late fee of ₦10,000 per hour.',
   },
   {
     question: 'Is driver included?',
-    answer:
-      'Yes. All bookings come with a licensed and professional driver.',
+    answer: 'Yes. All bookings come with a licensed and professional driver.',
   },
   {
     question: 'Can I book for my parents or someone else?',
     answer:
-      'Yes. You can arrange bookings for your parents, relatives, clients, friends, or loved ones.',
+      'Yes. You can arrange bookings for your parents, relatives, clients, friends or loved ones.',
   },
   {
     question: 'Do you allow night movement?',
     answer:
-      'Our standard operating hours are from 8:00am to 8:00pm. Trips outside these hours may only be available upon prior approval.',
-  },
-  {
-    question: 'How do I reserve a car?',
-    answer:
-      'You can reserve a car online by selecting your preferred vehicle and submitting your trip details. Our team will then contact you to confirm availability and payment.',
-  },
-  {
-    question: 'Do I need an account to book?',
-    answer:
-      'No. You can book without creating an account. However, accurate contact details and an emergency contact may be required for identification and support purposes.',
+      'Our standard operating hours are 8:00am to 8:00pm. Trips outside these hours may only be available by prior approval.',
   },
   {
     question: 'Can I pay deposit?',
@@ -73,32 +56,22 @@ const faqs = [
   {
     question: 'Is fuel included?',
     answer:
-      'Vehicles are provided with at least a half tank of fuel at the start of the trip. Additional fuel usage during the trip becomes the customer’s responsibility.',
+      'Vehicles are provided with at least a half tank of fuel at the start of the trip. Additional fuel usage during the trip is the customer’s responsibility.',
   },
   {
-    question: 'Are toll fees included?',
+    question: 'Are toll fees and parking included?',
     answer:
-      'No. Toll gate charges, parking tickets, and similar route-related fees are not included in the standard booking price.',
+      'No. Toll fees, parking tickets and similar route-related costs are not included in the standard booking price.',
   },
   {
     question: 'Who covers driver accommodation for interstate trips?',
     answer:
       'For interstate or overnight trips, the customer may be responsible for the driver’s accommodation and overnight allowance where applicable.',
   },
-    {
-    question: 'Will the same driver stay throughout my trip?',
-    answer:
-      'For longer or multi-day bookings, there may occasionally be a change of driver where necessary to ensure safety, proper rest, and service quality.',
-  },
   {
     question: 'Are your drivers careful and experienced?',
     answer:
-      'Yes. Our drivers are licensed, experienced, familiar with major routes, professionally trained, and committed to safe driving.',
-  },
-  {
-    question: 'What happens if I forget something in the vehicle?',
-    answer:
-      'Please contact us as soon as possible if you leave any item behind. While we will do our best to assist, customers are advised to check their belongings before ending each trip.',
+      'Yes. Our drivers are licensed, experienced, familiar with major routes, professionally trained and committed to safe driving.',
   },
 ]
 
@@ -113,7 +86,7 @@ export default function FaqBot() {
   )
 
   return (
-    <div className="fixed bottom-5 left-4 z-50">
+    <div className="fixed bottom-5 left-4 z-40">
       {open && (
         <div className="mb-3 w-[330px] max-w-[calc(100vw-2rem)] rounded-3xl bg-white shadow-2xl border overflow-hidden">
           <div className="bg-purple-800 text-white p-4">
@@ -124,12 +97,12 @@ export default function FaqBot() {
           </div>
 
           <div className="p-4">
-            <div className="bg-[#f7f4fb] rounded-2xl p-4 text-sm text-gray-700 min-h-[80px]">
+            <div className="bg-[#f7f4fb] rounded-2xl p-4 text-sm text-gray-700 min-h-[90px] leading-relaxed">
               {answer}
             </div>
 
             <div className="mt-4 space-y-2 max-h-[260px] overflow-y-auto pr-1">
-              {faqs.map((faq) => (
+              {fountainFaqs.map((faq) => (
                 <button
                   key={faq.question}
                   onClick={() => setAnswer(faq.answer)}
@@ -148,6 +121,10 @@ export default function FaqBot() {
                 Continue on WhatsApp
               </button>
             </a>
+
+            <p className="text-xs text-gray-400 mt-3 text-center">
+              For live support, use “Chat with us” on the right.
+            </p>
           </div>
         </div>
       )}
@@ -156,7 +133,7 @@ export default function FaqBot() {
         onClick={() => setOpen(!open)}
         className="bg-purple-800 hover:bg-purple-900 text-white px-5 py-4 rounded-full shadow-xl font-black"
       >
-        {open ? 'Close' : 'Ask Fountain Ride'}
+        {open ? 'Close FAQ' : 'Ask FAQ'}
       </button>
     </div>
   )
