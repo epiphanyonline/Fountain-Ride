@@ -1,13 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { formatNaira } from '../../../lib/format'
+import AdminGuard from '../../components/AdminGuard'
 
 export default function AdminRoutesPage() {
-  const router = useRouter()
-
   const [routes, setRoutes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -23,15 +21,8 @@ export default function AdminRoutesPage() {
   })
 
   useEffect(() => {
-    const auth = localStorage.getItem('admin_auth')
-
-    if (auth !== 'true') {
-      router.push('/admin/login')
-      return
-    }
-
     fetchRoutes()
-  }, [router])
+  }, [])
 
   async function fetchRoutes() {
     setLoading(true)
@@ -42,7 +33,7 @@ export default function AdminRoutesPage() {
       .order('destination', { ascending: true })
 
     if (error) {
-      console.error(error)
+      alert(error.message)
       setRoutes([])
     } else {
       setRoutes(data || [])
@@ -62,26 +53,22 @@ export default function AdminRoutesPage() {
     switch (type) {
       case 'drop_off_only':
         return 'Drop off only'
-
       case 'city_to_city_12hrs':
         return 'City-to-city 12 hours'
-
       case 'city_to_city_24hrs':
         return 'City-to-city 24 hours'
-
       default:
         return type
     }
   }
 
   async function addRoute() {
-    setSaving(true)
-
     if (!form.origin || !form.destination || !form.package_type) {
       alert('Please complete required fields.')
-      setSaving(false)
       return
     }
+
+    setSaving(true)
 
     const { error } = await supabase.from('route_prices').insert({
       origin: form.origin.trim(),
@@ -93,10 +80,10 @@ export default function AdminRoutesPage() {
       is_active: form.is_active,
     })
 
+    setSaving(false)
+
     if (error) {
-      console.error(error)
-      alert('Could not add route.')
-      setSaving(false)
+      alert(error.message)
       return
     }
 
@@ -110,8 +97,7 @@ export default function AdminRoutesPage() {
       is_active: true,
     })
 
-    await fetchRoutes()
-    setSaving(false)
+    fetchRoutes()
   }
 
   async function updatePrice(id: string, value: string) {
@@ -124,8 +110,7 @@ export default function AdminRoutesPage() {
       .eq('id', id)
 
     if (error) {
-      console.error(error)
-      alert('Could not update price.')
+      alert(error.message)
       return
     }
 
@@ -141,8 +126,7 @@ export default function AdminRoutesPage() {
       .eq('id', id)
 
     if (error) {
-      console.error(error)
-      alert('Could not update.')
+      alert(error.message)
       return
     }
 
@@ -158,238 +142,227 @@ export default function AdminRoutesPage() {
       .eq('id', id)
 
     if (error) {
-      console.error(error)
-      alert('Could not update route.')
+      alert(error.message)
       return
     }
 
     fetchRoutes()
   }
 
-  if (loading) {
-    return <div className="p-6">Loading routes...</div>
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <AdminGuard>
+      <main className="min-h-screen bg-[#f7f4fb] px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <p className="text-sm font-bold text-purple-700">
+              Fountain Ride Admin
+            </p>
 
-        <div className="mb-8">
-          <p className="text-sm font-semibold text-purple-700">
-            Route Management
-          </p>
+            <h1 className="text-3xl md:text-5xl font-black mt-2">
+              Manage Route Pricing
+            </h1>
 
-          <h1 className="text-4xl font-bold mt-2">
-            Manage Route Pricing
-          </h1>
+            <p className="text-gray-600 mt-3">
+              Add destination routes, package types, fixed prices or WhatsApp pricing.
+            </p>
+          </div>
 
-          <p className="text-gray-500 mt-2">
-            Add destination routes, package types, fixed prices or WhatsApp pricing.
-          </p>
-        </div>
+          <div className="grid lg:grid-cols-3 gap-6">
+            <section className="bg-white rounded-[2rem] border shadow-sm p-6 h-fit">
+              <h2 className="text-2xl font-black">Add Route</h2>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-
-          {/* Add Route */}
-          <div className="bg-white rounded-3xl shadow p-6 h-fit">
-            <h2 className="text-2xl font-bold">
-              Add Route
-            </h2>
-
-            <div className="grid gap-4 mt-5">
-
-              <input
-                className="border p-3 rounded-xl"
-                placeholder="Origin"
-                value={form.origin}
-                onChange={(e) =>
-                  updateForm('origin', e.target.value)
-                }
-              />
-
-              <input
-                className="border p-3 rounded-xl"
-                placeholder="Destination"
-                value={form.destination}
-                onChange={(e) =>
-                  updateForm('destination', e.target.value)
-                }
-              />
-
-              <select
-                className="border p-3 rounded-xl"
-                value={form.package_type}
-                onChange={(e) =>
-                  updateForm('package_type', e.target.value)
-                }
-              >
-                <option value="drop_off_only">
-                  Drop off only
-                </option>
-
-                <option value="city_to_city_12hrs">
-                  City-to-city 12 hours
-                </option>
-
-                <option value="city_to_city_24hrs">
-                  City-to-city 24 hours
-                </option>
-              </select>
-
-              <input
-                type="number"
-                className="border p-3 rounded-xl"
-                placeholder="Fixed price optional"
-                value={form.price}
-                onChange={(e) =>
-                  updateForm('price', e.target.value)
-                }
-              />
-
-              <label className="flex items-center gap-3 text-sm font-medium">
+              <div className="grid gap-4 mt-5">
                 <input
-                  type="checkbox"
-                  checked={form.price_on_request}
-                  onChange={(e) =>
-                    updateForm('price_on_request', e.target.checked)
-                  }
+                  className="border p-4 rounded-2xl"
+                  placeholder="Origin"
+                  value={form.origin}
+                  onChange={(e) => updateForm('origin', e.target.value)}
                 />
 
-                Price available via WhatsApp only
-              </label>
+                <input
+                  className="border p-4 rounded-2xl"
+                  placeholder="Destination"
+                  value={form.destination}
+                  onChange={(e) => updateForm('destination', e.target.value)}
+                />
 
-              <textarea
-                className="border p-3 rounded-xl"
-                placeholder="Notes optional"
-                value={form.notes}
-                onChange={(e) =>
-                  updateForm('notes', e.target.value)
-                }
-              />
+                <select
+                  className="border p-4 rounded-2xl"
+                  value={form.package_type}
+                  onChange={(e) => updateForm('package_type', e.target.value)}
+                >
+                  <option value="drop_off_only">Drop off only</option>
+                  <option value="city_to_city_12hrs">City-to-city 12 hours</option>
+                  <option value="city_to_city_24hrs">City-to-city 24 hours</option>
+                </select>
 
-              <button
-                onClick={addRoute}
-                disabled={saving}
-                className="bg-purple-700 hover:bg-purple-800 text-white py-3 rounded-2xl font-semibold"
-              >
-                {saving ? 'Saving...' : 'Add Route'}
-              </button>
+                <input
+                  type="number"
+                  className="border p-4 rounded-2xl"
+                  placeholder="Price"
+                  value={form.price}
+                  onChange={(e) => updateForm('price', e.target.value)}
+                />
 
-            </div>
-          </div>
+                <label className="flex items-center gap-3 bg-gray-50 rounded-2xl p-4">
+                  <input
+                    type="checkbox"
+                    checked={form.price_on_request}
+                    onChange={(e) => updateForm('price_on_request', e.target.checked)}
+                  />
+                  <span className="text-sm font-semibold">
+                    Price on request / WhatsApp confirmation
+                  </span>
+                </label>
 
-          {/* Routes List */}
-          <div className="lg:col-span-2 grid gap-5">
+                <label className="flex items-center gap-3 bg-gray-50 rounded-2xl p-4">
+                  <input
+                    type="checkbox"
+                    checked={form.is_active}
+                    onChange={(e) => updateForm('is_active', e.target.checked)}
+                  />
+                  <span className="text-sm font-semibold">Active route</span>
+                </label>
 
-            {routes.map((route) => (
-              <div
-                key={route.id}
-                className="bg-white rounded-3xl shadow p-5"
-              >
+                <textarea
+                  className="border p-4 rounded-2xl min-h-[100px]"
+                  placeholder="Notes"
+                  value={form.notes}
+                  onChange={(e) => updateForm('notes', e.target.value)}
+                />
 
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <button
+                  disabled={saving}
+                  onClick={addRoute}
+                  className="bg-purple-700 hover:bg-purple-800 disabled:bg-purple-300 text-white py-4 rounded-2xl font-bold"
+                >
+                  {saving ? 'Adding...' : 'Add Route'}
+                </button>
+              </div>
+            </section>
 
-                  <div>
-                    <h2 className="text-2xl font-bold">
-                      {route.origin} → {route.destination}
-                    </h2>
-
-                    <p className="text-sm text-purple-700 font-semibold mt-1">
-                      {packageLabel(route.package_type)}
-                    </p>
-
-                    <div className="mt-3">
-
-                      {route.price_on_request ? (
-                        <div className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-4 py-2 text-sm font-bold">
-                          Price on request via WhatsApp
-                        </div>
-                      ) : (
-                        <p className="text-3xl font-black">
-                          {formatNaira(route.price)}
-                        </p>
-                      )}
-
-                    </div>
-
-                    {route.notes && (
-                      <p className="text-gray-500 text-sm mt-3">
-                        {route.notes}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="w-full md:w-72">
-
-                    <input
-                      type="number"
-                      placeholder="Update fixed price"
-                      className="border p-3 rounded-xl w-full"
-                      defaultValue={route.price}
-                      onBlur={(e) =>
-                        updatePrice(route.id, e.target.value)
-                      }
-                    />
-
-                    <button
-                      onClick={() =>
-                        togglePriceRequest(
-                          route.id,
-                          route.price_on_request
-                        )
-                      }
-                      className={`mt-3 w-full py-3 rounded-2xl font-semibold ${
-                        route.price_on_request
-                          ? 'bg-green-600 text-white'
-                          : 'bg-amber-500 text-white'
-                      }`}
-                    >
-                      {route.price_on_request
-                        ? 'Disable WhatsApp Pricing'
-                        : 'Enable WhatsApp Pricing'}
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        toggleStatus(
-                          route.id,
-                          route.is_active
-                        )
-                      }
-                      className={`mt-3 w-full py-3 rounded-2xl font-semibold ${
-                        route.is_active
-                          ? 'bg-gray-900 text-white'
-                          : 'bg-purple-700 text-white'
-                      }`}
-                    >
-                      {route.is_active
-                        ? 'Hide Route'
-                        : 'Activate Route'}
-                    </button>
-
-                  </div>
-
+            <section className="lg:col-span-2 bg-white rounded-[2rem] border shadow-sm overflow-hidden">
+              <div className="p-6 border-b flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-black">Routes</h2>
+                  <p className="text-sm text-gray-500">
+                    Update prices and route availability.
+                  </p>
                 </div>
 
+                <button
+                  onClick={fetchRoutes}
+                  className="bg-purple-100 text-purple-700 px-4 py-2 rounded-xl font-bold"
+                >
+                  Refresh
+                </button>
               </div>
-            ))}
 
-            {routes.length === 0 && (
-              <div className="bg-white rounded-3xl shadow p-10 text-center">
-                <p className="font-semibold">
-                  No routes added yet
-                </p>
+              {loading ? (
+                <div className="p-6 text-gray-500">Loading routes...</div>
+              ) : routes.length === 0 ? (
+                <div className="p-8 text-center">
+                  <h3 className="text-xl font-black">No routes yet</h3>
+                  <p className="text-gray-500 mt-2">
+                    Add your first route from the form.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-100 text-left">
+                      <tr>
+                        <th className="p-4">Route</th>
+                        <th className="p-4">Package</th>
+                        <th className="p-4">Price</th>
+                        <th className="p-4">Pricing</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4">Actions</th>
+                      </tr>
+                    </thead>
 
-                <p className="text-sm text-gray-500 mt-2">
-                  Add your first route pricing package.
-                </p>
-              </div>
-            )}
+                    <tbody>
+                      {routes.map((route) => (
+                        <tr key={route.id} className="border-t align-top">
+                          <td className="p-4 font-bold">
+                            {route.origin} → {route.destination}
+                            {route.notes && (
+                              <p className="text-xs text-gray-500 font-normal mt-1">
+                                {route.notes}
+                              </p>
+                            )}
+                          </td>
 
+                          <td className="p-4">
+                            {packageLabel(route.package_type)}
+                          </td>
+
+                          <td className="p-4">
+                            <input
+                              type="number"
+                              defaultValue={route.price || ''}
+                              onBlur={(e) => updatePrice(route.id, e.target.value)}
+                              className="border rounded-xl p-2 w-32"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              {route.price_on_request
+                                ? 'Price on request'
+                                : formatNaira(route.price || 0)}
+                            </p>
+                          </td>
+
+                          <td className="p-4">
+                            <button
+                              onClick={() =>
+                                togglePriceRequest(
+                                  route.id,
+                                  Boolean(route.price_on_request)
+                                )
+                              }
+                              className={`px-3 py-2 rounded-xl font-bold text-xs ${
+                                route.price_on_request
+                                  ? 'bg-yellow-100 text-yellow-700'
+                                  : 'bg-green-100 text-green-700'
+                              }`}
+                            >
+                              {route.price_on_request
+                                ? 'Price on request'
+                                : 'Fixed price'}
+                            </button>
+                          </td>
+
+                          <td className="p-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                route.is_active
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-gray-200 text-gray-600'
+                              }`}
+                            >
+                              {route.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+
+                          <td className="p-4">
+                            <button
+                              onClick={() =>
+                                toggleStatus(route.id, Boolean(route.is_active))
+                              }
+                              className="bg-gray-950 text-white px-4 py-2 rounded-xl font-bold text-xs"
+                            >
+                              {route.is_active ? 'Disable' : 'Enable'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
           </div>
-
         </div>
-      </div>
-    </div>
+      </main>
+    </AdminGuard>
   )
 }

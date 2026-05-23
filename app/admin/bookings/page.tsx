@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { formatNaira } from '../../../lib/format'
+import AdminGuard from '../../components/AdminGuard'
 
 function packageLabel(type: string) {
   switch (type) {
@@ -154,7 +155,8 @@ export default function AdminBookingsPage() {
   if (loading) return <div className="p-6">Loading bookings...</div>
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+  <AdminGuard>
+    <main className="min-h-screen bg-[#f7f4fb] px-4 py-6 md:py-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -447,6 +449,7 @@ Fountain Ride`
           )}
         </div>
       </div>
-    </div>
+    </main>
+</AdminGuard>
   )
 }

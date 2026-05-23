@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { formatNaira } from '../../../lib/format'
+import AdminGuard from '../../components/AdminGuard'
 
 function parseImageUrls(value: string) {
   return value
@@ -48,15 +49,8 @@ export default function AdminCarsPage() {
   })
 
   useEffect(() => {
-    const auth = localStorage.getItem('admin_auth')
-
-    if (auth !== 'true') {
-      router.push('/admin/login')
-      return
-    }
-
-    fetchCars()
-  }, [router])
+  fetchCars()
+}, [])
 
   async function fetchCars() {
     setLoading(true)
@@ -200,14 +194,21 @@ export default function AdminCarsPage() {
   }
 
   function logout() {
-    localStorage.removeItem('admin_auth')
-    router.push('/admin/login')
-  }
+  localStorage.removeItem('fountain_admin_logged_in')
+  router.push('/admin/login')
+}
 
-  if (loading) return <div className="p-6">Loading cars...</div>
+  if (loading) {
+  return (
+    <AdminGuard>
+      <div className="p-6">Loading cars...</div>
+    </AdminGuard>
+  )
+}
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+  <AdminGuard>
+    <main className="min-h-screen bg-[#f7f4fb] px-4 py-6 md:py-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -421,6 +422,7 @@ export default function AdminCarsPage() {
           </div>
         </div>
       </div>
-    </div>
+            </main>
+  </AdminGuard>
   )
 }

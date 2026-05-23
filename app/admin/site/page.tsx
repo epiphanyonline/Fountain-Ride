@@ -1,12 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
+import AdminGuard from '../../components/AdminGuard'
 
 export default function AdminSitePage() {
-  const router = useRouter()
-
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -19,24 +17,21 @@ export default function AdminSitePage() {
   })
 
   useEffect(() => {
-    const auth = localStorage.getItem('admin_auth')
-
-    if (auth !== 'true') {
-      router.push('/admin/login')
-      return
-    }
-
     fetchContent()
-  }, [router])
+  }, [])
 
   async function fetchContent() {
     setLoading(true)
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('site_content')
       .select('*')
       .eq('id', 1)
       .single()
+
+    if (error && error.code !== 'PGRST116') {
+      alert(error.message)
+    }
 
     if (data) {
       setForm({
@@ -67,91 +62,86 @@ export default function AdminSitePage() {
       office_address: form.office_address,
     })
 
+    setSaving(false)
+
     if (error) {
-      console.error(error)
-      alert('Could not save changes')
-      setSaving(false)
+      alert(error.message)
       return
     }
 
     alert('Homepage updated successfully ✅')
-    setSaving(false)
   }
-
-  function logout() {
-    localStorage.removeItem('admin_auth')
-    router.push('/admin/login')
-  }
-
-  if (loading) return <div className="p-6">Loading...</div>
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
+    <AdminGuard>
+      <main className="min-h-screen bg-[#f7f4fb] px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <p className="text-sm font-bold text-purple-700">
+              Fountain Ride Admin
+            </p>
 
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Homepage Editor</h1>
-            <p className="text-gray-500">
-              Update hero text, image, and WhatsApp details.
+            <h1 className="text-3xl md:text-5xl font-black mt-2">
+              Homepage Editor
+            </h1>
+
+            <p className="text-gray-600 mt-3">
+              Update homepage headline, hero image, WhatsApp number and office details.
             </p>
           </div>
 
-          <button
-            onClick={logout}
-            className="bg-gray-900 text-white px-5 py-3 rounded-2xl"
-          >
-            Logout
-          </button>
+          {loading ? (
+            <div className="bg-white rounded-3xl border shadow-sm p-8">
+              Loading homepage content...
+            </div>
+          ) : (
+            <div className="bg-white rounded-[2rem] shadow-sm border p-6 md:p-8 space-y-4">
+              <input
+                className="border p-4 rounded-2xl w-full"
+                placeholder="Headline"
+                value={form.headline}
+                onChange={(e) => update('headline', e.target.value)}
+              />
+
+              <textarea
+                className="border p-4 rounded-2xl w-full min-h-[120px]"
+                placeholder="Subheadline"
+                value={form.subheadline}
+                onChange={(e) => update('subheadline', e.target.value)}
+              />
+
+              <input
+                className="border p-4 rounded-2xl w-full"
+                placeholder="Hero Image URL"
+                value={form.hero_image}
+                onChange={(e) => update('hero_image', e.target.value)}
+              />
+
+              <input
+                className="border p-4 rounded-2xl w-full"
+                placeholder="WhatsApp Number e.g. 2348168839382"
+                value={form.whatsapp_number}
+                onChange={(e) => update('whatsapp_number', e.target.value)}
+              />
+
+              <input
+                className="border p-4 rounded-2xl w-full"
+                placeholder="Office Address"
+                value={form.office_address}
+                onChange={(e) => update('office_address', e.target.value)}
+              />
+
+              <button
+                onClick={saveContent}
+                disabled={saving}
+                className="w-full bg-purple-700 hover:bg-purple-800 disabled:bg-purple-300 text-white py-4 rounded-2xl font-bold"
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          )}
         </div>
-
-        <div className="bg-white rounded-3xl shadow p-6 space-y-4">
-
-          <input
-            className="border p-3 rounded-xl w-full"
-            placeholder="Headline"
-            value={form.headline}
-            onChange={(e) => update('headline', e.target.value)}
-          />
-
-          <textarea
-            className="border p-3 rounded-xl w-full"
-            placeholder="Subheadline"
-            value={form.subheadline}
-            onChange={(e) => update('subheadline', e.target.value)}
-          />
-
-          <input
-            className="border p-3 rounded-xl w-full"
-            placeholder="Hero Image URL"
-            value={form.hero_image}
-            onChange={(e) => update('hero_image', e.target.value)}
-          />
-
-          <input
-            className="border p-3 rounded-xl w-full"
-            placeholder="WhatsApp Number e.g. 2348168839382"
-            value={form.whatsapp_number}
-            onChange={(e) => update('whatsapp_number', e.target.value)}
-          />
-
-          <input
-            className="border p-3 rounded-xl w-full"
-            placeholder="Office Address"
-            value={form.office_address}
-            onChange={(e) => update('office_address', e.target.value)}
-          />
-
-          <button
-            onClick={saveContent}
-            disabled={saving}
-            className="w-full bg-purple-700 text-white py-3 rounded-2xl font-semibold"
-          >
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
-
-        </div>
-      </div>
-    </div>
+      </main>
+    </AdminGuard>
   )
 }
