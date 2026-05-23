@@ -14,15 +14,11 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#f7f4fb] text-gray-950">
-
       {/* HERO */}
       <section className="max-w-7xl mx-auto px-5 py-6 md:py-12">
         <div className="rounded-[2rem] bg-white shadow-sm border overflow-hidden">
           <div className="grid lg:grid-cols-2">
-
-            {/* LEFT */}
             <div className="p-6 md:p-12 flex flex-col justify-center">
-
               <p className="text-sm font-bold text-purple-700">
                 Careful drivers. Professional service. No overspeeding.
               </p>
@@ -45,17 +41,10 @@ export default function HomePage() {
                 Safe. Comfortable. On time.
               </p>
 
-              {/* CTA */}
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
                 <Link href="/cars" className="w-full sm:w-auto">
                   <button className="w-full bg-purple-700 hover:bg-purple-800 text-white px-7 py-4 rounded-2xl font-bold shadow">
                     View Available Cars
-                  </button>
-                </Link>
-
-                <Link href="/list-your-car">
-                  <button className="w-full bg-gray-950 text-white px-7 py-4 rounded-2xl font-bold">
-                    List Your Car
                   </button>
                 </Link>
 
@@ -70,7 +59,6 @@ export default function HomePage() {
                 </a>
               </div>
 
-              {/* QUICK FEATURES */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
                 {[
                   ['Airport Pickup', 'Arrival & drop-off'],
@@ -84,46 +72,41 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-
             </div>
 
-            {/* RIGHT IMAGE */}
-              <div className="relative min-h-[420px] md:min-h-[580px]">
-                <img
-                  src="https://mssizgzdewgutcmqdsim.supabase.co/storage/v1/object/public/images/Fountain%20Ride.png"
-                  alt="Fountain Ride airport pickup"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
+            <div className="relative min-h-[420px] md:min-h-[580px]">
+              <img
+                src="https://mssizgzdewgutcmqdsim.supabase.co/storage/v1/object/public/images/Fountain%20Ride.png"
+                alt="Fountain Ride airport pickup"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-                {/* SAFETY BADGE */}
-                <div className="absolute top-4 right-4 md:top-5 md:right-5 bg-purple-800 text-white px-4 py-3 md:p-5 rounded-2xl shadow-lg max-w-[180px] md:max-w-[220px]">
-                  <p className="font-bold text-base md:text-lg leading-tight">
-                    Careful. Professional.
-                  </p>
+              <div className="absolute top-4 right-4 md:top-5 md:right-5 bg-purple-800 text-white px-4 py-3 md:p-5 rounded-2xl shadow-lg max-w-[180px] md:max-w-[220px]">
+                <p className="font-bold text-base md:text-lg leading-tight">
+                  Careful. Professional.
+                </p>
 
-                  <p className="text-xs md:text-sm mt-1 text-purple-100">
-                    We never overspeed.
-                  </p>
-                </div>
-
-                {/* BOTTOM MESSAGE */}
-                <div className="absolute bottom-4 left-4 right-4 md:bottom-5 md:left-5 md:right-5 bg-white/95 backdrop-blur rounded-2xl md:rounded-3xl p-4 md:p-5 shadow">
-                  <p className="text-sm font-bold text-purple-700">
-                    Daily Hire: 8am – 8pm
-                  </p>
-
-                  <p className="text-2xl md:text-xl font-black mt-1 leading-tight">
-                    Need more time?
-                  </p>
-
-                  <p className="text-base md:text-lg font-semibold text-gray-700 mt-1">
-                    Extended hours available.
-                  </p>
-                </div>
+                <p className="text-xs md:text-sm mt-1 text-purple-100">
+                  We never overspeed.
+                </p>
               </div>
 
+              <div className="absolute bottom-4 left-4 right-4 md:bottom-5 md:left-5 md:right-5 bg-white/95 backdrop-blur rounded-2xl md:rounded-3xl p-4 md:p-5 shadow">
+                <p className="text-sm font-bold text-purple-700">
+                  Daily Hire: 8am – 8pm
+                </p>
+
+                <p className="text-2xl md:text-xl font-black mt-1 leading-tight">
+                  Need more time?
+                </p>
+
+                <p className="text-base md:text-lg font-semibold text-gray-700 mt-1">
+                  Extended hours available.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -136,7 +119,7 @@ export default function HomePage() {
             ['🏙️', 'City Travel', 'Move easily within cities'],
             ['🚗', 'City to City', 'Comfortable long trips'],
             ['👨‍👩‍👧', 'Family Trips', 'Pick up loved ones safely'],
-            ['💼', 'Business Travel', 'Professional'],
+            ['💼', 'Business Travel', 'Professional service'],
           ].map(([icon, title, text]) => (
             <div key={title} className="bg-white rounded-3xl p-5 border shadow-sm">
               <p className="text-2xl">{icon}</p>
@@ -164,18 +147,47 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* SUBTLE OWNER LISTING */}
+      <section className="max-w-7xl mx-auto px-5 pb-8">
+        <div className="bg-white rounded-[2rem] border shadow-sm p-5 md:p-7">
+          <div className="grid md:grid-cols-[1fr_auto] gap-5 items-center">
+            <div>
+              <p className="text-sm font-bold text-purple-700">
+                Partner with Fountain Ride
+              </p>
+
+              <h2 className="text-2xl md:text-3xl font-black mt-2">
+                Would you like to turn your car into an income-generating asset?
+              </h2>
+
+              <p className="text-gray-600 mt-3 leading-relaxed">
+                Verified car owners can submit their vehicle details for review.
+                Approved cars may be listed under Fountain Ride’s managed service.
+              </p>
+            </div>
+
+            <Link href="/list-your-car">
+              <button className="w-full md:w-auto bg-gray-950 hover:bg-black text-white px-7 py-4 rounded-2xl font-bold">
+                Submit Car Details
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* AIRPORT BOOKING */}
       <section className="max-w-7xl mx-auto px-5 pb-8">
         <div className="bg-white rounded-[2rem] shadow-sm border p-6 md:p-8">
           <div className="grid md:grid-cols-2 gap-6 items-center">
-
             <div>
               <p className="text-sm font-bold text-purple-700">
                 Quick Airport Pickup
               </p>
+
               <h2 className="text-3xl font-black mt-2">
                 Arriving in Lagos, Abuja or Ibadan?
               </h2>
+
               <p className="text-gray-600 mt-3">
                 Tell us your arrival details and we’ll arrange a driver ahead of time.
               </p>
@@ -194,7 +206,6 @@ export default function HomePage() {
                 </button>
               </Link>
             </div>
-
           </div>
         </div>
       </section>
@@ -241,7 +252,8 @@ export default function HomePage() {
           </a>
         </div>
       </section>
-   <FaqBot /> 
+
+      <FaqBot />
     </main>
   )
 }
