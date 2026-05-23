@@ -53,6 +53,12 @@ export default function HomePage() {
                   </button>
                 </Link>
 
+                <Link href="/list-your-car">
+                  <button className="w-full bg-gray-950 text-white px-7 py-4 rounded-2xl font-bold">
+                    List Your Car
+                  </button>
+                </Link>
+
                 <a
                   href={`https://wa.me/${whatsappNumber}?text=${whatsappText}`}
                   target="_blank"
