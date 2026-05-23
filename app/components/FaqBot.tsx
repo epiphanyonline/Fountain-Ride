@@ -113,7 +113,7 @@ export default function FaqBot() {
   )
 
   return (
-    <div className="fixed bottom-5 right-4 z-50">
+    <div className="fixed bottom-5 left-4 z-50">
       {open && (
         <div className="mb-3 w-[330px] max-w-[calc(100vw-2rem)] rounded-3xl bg-white shadow-2xl border overflow-hidden">
           <div className="bg-purple-800 text-white p-4">
