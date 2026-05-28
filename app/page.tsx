@@ -51,6 +51,7 @@ export default function HomePage() {
                 <a
                   href={`https://wa.me/${whatsappNumber}?text=${whatsappText}`}
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full sm:w-auto"
                 >
                   <button className="w-full bg-green-600 hover:bg-green-700 text-white px-7 py-4 rounded-2xl font-bold shadow">
@@ -147,34 +148,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SUBTLE OWNER LISTING */}
-      <section className="max-w-7xl mx-auto px-5 pb-8">
-        <div className="bg-white rounded-[2rem] border shadow-sm p-5 md:p-7">
-          <div className="grid md:grid-cols-[1fr_auto] gap-5 items-center">
-            <div>
-              <p className="text-sm font-bold text-purple-700">
-                Partner with Fountain Ride
-              </p>
-
-              <h2 className="text-2xl md:text-3xl font-black mt-2">
-                Would you like to turn your car into an income-generating asset?
-              </h2>
-
-              <p className="text-gray-600 mt-3 leading-relaxed">
-                Verified car owners can submit their vehicle details for review.
-                Approved cars may be listed under Fountain Ride’s managed service.
-              </p>
-            </div>
-
-            <Link href="/list-your-car">
-              <button className="w-full md:w-auto bg-gray-950 hover:bg-black text-white px-7 py-4 rounded-2xl font-bold">
-                Submit Car Details
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* AIRPORT BOOKING */}
       <section className="max-w-7xl mx-auto px-5 pb-8">
         <div className="bg-white rounded-[2rem] shadow-sm border p-6 md:p-8">
@@ -194,7 +167,11 @@ export default function HomePage() {
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3">
-              <a href={`https://wa.me/${whatsappNumber}?text=${airportText}`} target="_blank">
+              <a
+                href={`https://wa.me/${whatsappNumber}?text=${airportText}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <button className="w-full bg-purple-700 text-white py-4 rounded-2xl font-bold">
                   Book Airport Pickup
                 </button>
@@ -211,7 +188,7 @@ export default function HomePage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="max-w-7xl mx-auto px-5 pb-14">
+      <section className="max-w-7xl mx-auto px-5 pb-10">
         <div className="grid md:grid-cols-4 gap-4">
           {[
             ['1. View cars', 'Browse and choose a vehicle'],
@@ -227,8 +204,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className="max-w-7xl mx-auto px-5 pb-16">
+      {/* FINAL CUSTOMER CTA */}
+      <section className="max-w-7xl mx-auto px-5 pb-8">
         <div className="bg-gray-950 rounded-[2rem] p-8 text-white">
           <h2 className="text-2xl md:text-4xl font-black">
             Wherever you’re going, we’ll get you there safely.
@@ -245,11 +222,47 @@ export default function HomePage() {
           <a
             href={`https://wa.me/${whatsappNumber}?text=${whatsappText}`}
             target="_blank"
+            rel="noopener noreferrer"
           >
             <button className="mt-6 bg-white text-gray-950 px-8 py-4 rounded-2xl font-bold">
               Chat on WhatsApp
             </button>
           </a>
+        </div>
+      </section>
+
+      {/* SMALL OWNER CTA AT VERY BOTTOM */}
+      <section className="max-w-7xl mx-auto px-5 pb-20">
+        <div className="rounded-[2rem] border border-purple-100 bg-white/80 p-5 md:p-6 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-purple-700">
+                Vehicle Owners
+              </p>
+
+              <h3 className="mt-2 text-xl md:text-2xl font-black text-gray-950">
+                Want to list your car with Fountain Ride?
+              </h3>
+
+              <p className="mt-2 text-sm md:text-base text-gray-600 leading-relaxed max-w-2xl">
+                Use our owner earnings calculator to estimate possible take-home before submitting your car.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+              <Link href="/owner-earnings" className="w-full sm:w-auto">
+                <button className="w-full rounded-2xl bg-purple-700 px-6 py-4 text-sm md:text-base font-bold text-white shadow-lg shadow-purple-500/20 hover:bg-purple-800 transition">
+                  Owner Earnings Calculator
+                </button>
+              </Link>
+
+              <Link href="/list-your-car" className="w-full sm:w-auto">
+                <button className="w-full rounded-2xl border border-gray-300 bg-white px-6 py-4 text-sm md:text-base font-bold text-gray-900 hover:bg-purple-50 transition">
+                  List My Car
+                </button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
