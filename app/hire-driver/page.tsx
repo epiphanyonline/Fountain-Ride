@@ -660,12 +660,12 @@ export default function HireDriverPage() {
     <>
       <MarketplaceNav />
 
-      <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#f2e9ff_0,#faf8fd_42%,#f7f4fb_100%)] px-4 py-7 pb-32 md:py-10">
-        <div className="mx-auto max-w-5xl">
+      <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#f2e9ff_0,#faf8fd_42%,#f7f4fb_100%)] px-3 py-5 pb-28 sm:px-5 md:py-8">
+        <div className="mx-auto max-w-3xl">
 
           {/* HERO */}
 
-          <section className="mb-7">
+          <section className="mb-7 hidden md:block">
             <p className="text-xs font-black tracking-[.18em] text-purple-700">
               FOUNTAIN RIDE • NIGERIA&apos;S MOBILE GARAGE™
             </p>
@@ -697,6 +697,18 @@ export default function HireDriverPage() {
               ))}
             </div>
           </section>
+
+          <div className="mb-4 md:hidden">
+            <p className="text-[11px] font-black uppercase tracking-widest text-purple-700">
+              Fountain Ride Mobile Garage
+            </p>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-950">
+              Hire a Driver
+            </h1>
+            <p className="mt-1 text-sm text-gray-600">
+              Find the right driver in three simple steps.
+            </p>
+          </div>
 
           <Progress step={step} />
 
@@ -807,12 +819,20 @@ export default function HireDriverPage() {
               title="Where and when?"
               text="Give drivers enough information to understand the time and journey."
             >
+              <div className="mb-4 flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-purple-100 font-black text-purple-800">1</span>
+                <div>
+                  <h3 className="font-black text-gray-950">Your journey</h3>
+                  <p className="text-xs text-gray-500">Where the driver should meet you</p>
+                </div>
+              </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <LocationField
                   label="Where should the driver report?"
                   value={pickup}
                   onChange={setPickup}
                   placeholder="Area, street or landmark"
+                  showMyLocation={false}
                 />
 
                 <Field label="State">
@@ -867,6 +887,7 @@ export default function HireDriverPage() {
                       setDestination
                     }
                     placeholder="Destination or area"
+                    showMyLocation={false}
                   />
                 </div>
               )}
@@ -887,6 +908,13 @@ export default function HireDriverPage() {
                 </div>
               )}
 
+              <div className="mb-4 mt-8 flex items-center gap-3 border-t border-gray-100 pt-6">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-purple-100 font-black text-purple-800">2</span>
+                <div>
+                  <h3 className="font-black text-gray-950">Date and time</h3>
+                  <p className="text-xs text-gray-500">When and for how long you need a driver</p>
+                </div>
+              </div>
               <div className="mt-7 grid gap-4 md:grid-cols-3">
                 <Field label="Start date">
                   <input
@@ -1630,7 +1658,7 @@ function Panel({
   children: React.ReactNode
 }) {
   return (
-    <section className="fr-glass rounded-[2rem] border p-5 shadow-[0_25px_70px_rgba(59,20,90,.08)] md:p-8">
+    <section className="fr-glass rounded-[1.5rem] border border-purple-100 bg-white p-5 shadow-[0_12px_40px_rgba(59,20,90,.06)] sm:p-7">
       <p className="text-sm font-black uppercase tracking-[.18em] text-purple-700">
         {eyebrow}
       </p>
@@ -1770,7 +1798,7 @@ function BottomButtons({
   next: () => void
 }) {
   return (
-    <div className="mt-8 flex justify-between gap-3">
+    <div className="sticky bottom-3 z-30 mt-8 flex justify-between gap-3 rounded-2xl border border-purple-100 bg-white/95 p-3 shadow-lg backdrop-blur-md">
       <div>
         {back && (
           <button
