@@ -28,7 +28,33 @@ export async function PATCH(
   const status = String(body?.status || '')
   const db = getSupabaseAdmin()
 
-  if (status === 'paid') {
+if (status === 'test_paid') {
+  if (body?.confirmSimulation !== true) {
+    return NextResponse.json(
+      { error: 'Confirm that this is a TEST simulation with no bank transfer.' },
+      { status: 400 }
+    )
+  }
+
+  const { data, error } = await db.rpc(
+    'confirm_test_driver_withdrawal',
+    {
+      p_withdrawal_id: id,
+      p_admin_identifier: 'fountain_ride_admin',
+    }
+  )
+
+  if (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 409 }
+    )
+  }
+
+  return NextResponse.json(data)
+}
+
+if (status === 'paid') {
     const reference = String(body?.reference || '').trim()
 
     if (reference.length < 5 || reference.length > 150) {
