@@ -1,0 +1,4 @@
+import {NextResponse} from 'next/server'
+import {getSupabaseAdmin} from '../../../../../../lib/server/supabaseAdmin'
+import {getRideForToken,rideToken} from '../../../../../../lib/server/marketplaceAuth'
+export async function POST(req:Request,{params}:{params:Promise<{id:string}>}){const {id}=await params;const ride=await getRideForToken(id,rideToken(req));if(!ride)return NextResponse.json({error:'Unauthorized'},{status:401});const b=await req.json().catch(()=>null);const offerId=String(b?.offerId||'');const db=getSupabaseAdmin();const {error}=await db.from('ride_offers').update({status:'declined',updated_at:new Date().toISOString()}).eq('id',offerId).eq('ride_request_id',id).in('status',['offered','countered']);if(error)return NextResponse.json({error:error.message},{status:500});return NextResponse.json({ok:true})}

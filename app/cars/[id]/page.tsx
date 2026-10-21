@@ -1,28 +1,31 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '../../../lib/supabase'
 import { formatNaira } from '../../../lib/format'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
-const EXTRA_HOUR_RATE = 15000
-
-const cityPackageLabels: Record<string, string> = {
-  drop_off_only: 'City-to-city drop off only',
-  city_to_city_12hrs: 'City-to-city 12 hours',
-  city_to_city_24hrs: 'City-to-city 24 hours',
-}
-
 function getCarImages(car: any): string[] {
-  if (Array.isArray(car.image_urls) && car.image_urls.length > 0) {
+  if (Array.isArray(car?.image_urls) && car.image_urls.length > 0) {
     return car.image_urls.filter(Boolean)
   }
 
-  if (car.image_url) return [car.image_url]
+  if (car?.image_url) return [car.image_url]
 
   return []
+}
+
+function formatDateForApi(date: Date | null) {
+  if (!date) return ''
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }
 
 function getMinimumPickupDate() {
@@ -34,53 +37,71 @@ function getMinimumPickupDate() {
 
 export default function CarDetailsPage() {
   const params = useParams()
+  const router = useRouter()
+
   const carId = params.id as string
-  const whatsappNumber = '2348168839382'
 
   const [car, setCar] = useState<any>(null)
-  const [routePrices, setRoutePrices] = useState<any[]>([])
   const [selectedImage, setSelectedImage] = useState('')
   const [loading, setLoading] = useState(true)
 
-  const [tripType, setTripType] = useState('daily_hire')
-  const [cityPackageType, setCityPackageType] = useState('drop_off_only')
-  const [selectedRouteId, setSelectedRouteId] = useState('')
-  const [extraHours, setExtraHours] = useState('0')
+  const [dateRange, setDateRange] = useState<
+    [Date | null, Date | null]
+  >([null, null])
 
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    null,
-    null,
-  ])
+  const [startDate, endDate] = dateRange
 
-  const [pickupDate, returnDate] = dateRange
+  const [startTime, setStartTime] = useState('')
+  const [endTime, setEndTime] = useState('')
 
-  const [pickupTime, setPickupTime] = useState('')
-  const [returnTime, setReturnTime] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [whatsapp, setWhatsapp] = useState('')
-  const [pickupLocation, setPickupLocation] = useState('')
-  const [bookedRanges, setBookedRanges] = useState<any[]>([])
+  const [pickupAddress, setPickupAddress] = useState('')
+  const [destinationAddress, setDestinationAddress] =
+    useState('')
+
+  const [tripType, setTripType] = useState('local')
+
+  const [passengerCount, setPassengerCount] =
+    useState('')
+
+  const [specialRequirements, setSpecialRequirements] =
+    useState('')
+
+  const [customerName, setCustomerName] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [customerEmail, setCustomerEmail] = useState('')
+
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState('')
-  const [whatsappLink, setWhatsappLink] = useState('')
 
-  const minimumPickupDate = getMinimumPickupDate()
+  const minimumPickupDate = useMemo(
+    () => getMinimumPickupDate(),
+    []
+  )
+
+  const carImages = useMemo(
+    () => (car ? getCarImages(car) : []),
+    [car]
+  )
 
   useEffect(() => {
     fetchCar()
-    fetchBookedDates()
-    fetchRoutePrices()
-  }, [])
+  }, [carId])
 
   async function fetchCar() {
+    setLoading(true)
+
     const { data, error } = await supabase
       .from('cars')
       .select('*')
       .eq('id', carId)
       .single()
 
-    if (error) console.error(error)
+    if (error) {
+      console.error(error)
+      setCar(null)
+      setLoading(false)
+      return
+    }
 
     setCar(data)
 
@@ -90,610 +111,616 @@ export default function CarDetailsPage() {
     setLoading(false)
   }
 
-  async function fetchRoutePrices() {
-    const { data, error } = await supabase
-      .from('route_prices')
-      .select('*')
-      .eq('is_active', true)
-      .order('destination', { ascending: true })
-
-    if (error) {
-      console.error(error)
-      setRoutePrices([])
-      return
-    }
-
-    setRoutePrices(data || [])
-  }
-
-  async function fetchBookedDates() {
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('pickup_date, return_date')
-      .eq('car_id', carId)
-      .in('status', ['pending', 'confirmed'])
-
-    if (error) console.error(error)
-
-    setBookedRanges(data || [])
-  }
-
-  function isDateBooked(date: Date) {
-    return bookedRanges.some((range) => {
-      const start = new Date(range.pickup_date)
-      const end = new Date(range.return_date)
-
-      start.setHours(0, 0, 0, 0)
-      end.setHours(23, 59, 59, 999)
-
-      return date >= start && date <= end
-    })
-  }
-
-  function rangeContainsBookedDate(start: Date, end: Date) {
-    const current = new Date(start)
-    current.setHours(0, 0, 0, 0)
-
-    const finalDate = new Date(end)
-    finalDate.setHours(0, 0, 0, 0)
-
-    while (current <= finalDate) {
-      if (isDateBooked(new Date(current))) return true
-      current.setDate(current.getDate() + 1)
-    }
-
-    return false
-  }
-
-  const filteredRoutePrices = useMemo(() => {
-    return routePrices.filter((route) => route.package_type === cityPackageType)
-  }, [routePrices, cityPackageType])
-
-  const selectedRoute = useMemo(() => {
-    return routePrices.find((route) => route.id === selectedRouteId)
-  }, [routePrices, selectedRouteId])
-
-  const priceOnRequest =
-    tripType !== 'daily_hire' && selectedRoute?.price_on_request === true
-
-  const totalDays = useMemo(() => {
-    if (!pickupDate || !returnDate) return 0
-
-    const diff = returnDate.getTime() - pickupDate.getTime()
-
-    if (diff < 0) return 0
-
-    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)))
-  }, [pickupDate, returnDate])
-
-  const extraHoursAmount = Number(extraHours || 0) * EXTRA_HOUR_RATE
-
-  const baseAmount =
-    tripType !== 'daily_hire'
-      ? priceOnRequest
-        ? 0
-        : Number(selectedRoute?.price || 0)
-      : car
-        ? totalDays * Number(car.daily_rate || 0)
-        : 0
-
-  const totalAmount = priceOnRequest ? 0 : baseAmount + extraHoursAmount
-  const carImages = car ? getCarImages(car) : []
-
-  async function submitBooking() {
-    setSubmitting(true)
+  async function submitQuoteRequest() {
     setMessage('')
-    setWhatsappLink('')
 
     if (
-      !pickupDate ||
-      !returnDate ||
-      !pickupTime ||
-      !returnTime ||
-      !fullName ||
-      !phone ||
-      !pickupLocation
+      !startDate ||
+      !endDate ||
+      !startTime ||
+      !pickupAddress.trim() ||
+      !destinationAddress.trim() ||
+      !customerName.trim() ||
+      !customerPhone.trim()
     ) {
-      setMessage('Please fill all required fields.')
-      setSubmitting(false)
+      setMessage(
+        'Please complete all required journey and contact details.'
+      )
       return
     }
 
-    if (pickupDate < minimumPickupDate) {
-      setMessage('Bookings require at least 48 hours advance notice.')
-      setSubmitting(false)
+    if (startDate < minimumPickupDate) {
+      setMessage(
+        'Vehicle hire requests require at least 48 hours advance notice.'
+      )
       return
     }
 
-    if (tripType !== 'daily_hire' && !selectedRoute) {
-      setMessage('Please select your city-to-city route.')
-      setSubmitting(false)
+    if (endDate < startDate) {
+      setMessage('Return date cannot be before the pickup date.')
       return
     }
 
-    if (totalDays <= 0) {
-      setMessage('Invalid date selection.')
-      setSubmitting(false)
-      return
-    }
+    const startDateString = formatDateForApi(startDate)
+    const endDateString = formatDateForApi(endDate)
 
-    if (rangeContainsBookedDate(pickupDate, returnDate)) {
-      setMessage('Selected range includes unavailable dates.')
-      setSubmitting(false)
-      return
-    }
+    setSubmitting(true)
 
-    const pickupDateStr = pickupDate.toISOString().split('T')[0]
-    const returnDateStr = returnDate.toISOString().split('T')[0]
+    try {
+            const response = await fetch(
+        '/api/marketplace/vehicle-hire',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            carId,
 
-    const { data: isAvailable, error: availabilityError } = await supabase.rpc(
-      'check_car_availability',
-      {
-        p_car_id: carId,
-        p_pickup_date: pickupDateStr,
-        p_return_date: returnDateStr,
+            customerName: customerName.trim(),
+            customerPhone: customerPhone.trim(),
+
+            customerEmail:
+              customerEmail.trim() || null,
+
+            pickupAddress: pickupAddress.trim(),
+            destinationAddress:
+              destinationAddress.trim(),
+
+            startDate: startDateString,
+            startTime,
+
+            endDate: endDateString,
+            endTime: endTime || null,
+
+            tripType,
+
+            passengerCount:
+              passengerCount === ''
+                ? null
+                : Number(passengerCount),
+
+            specialRequirements:
+              specialRequirements.trim() || null,
+          }),
+        }
+      )
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        setMessage(
+          result?.error ||
+            'Unable to submit your quotation request.'
+        )
+        setSubmitting(false)
+        return
       }
-    )
 
-    if (availabilityError) {
-      console.error(availabilityError)
-      setMessage('Could not check availability. Please try again.')
+      /*
+       * Keep the private access token on this device.
+       *
+       * We will use it on the request page in the next step.
+       */
+      localStorage.setItem(
+        `vehicleHireAccess:${result.id}`,
+        result.accessToken
+      )
+
+      /*
+       * Send the customer to their private request page.
+       *
+       * We will create this page immediately after this build
+       * passes.
+       */
+      router.push(
+        `/vehicle-hire/requests/${result.id}`
+      )
+    } catch (error) {
+      console.error(error)
+
+      setMessage(
+        'Something went wrong while submitting your request.'
+      )
+
       setSubmitting(false)
-      return
     }
-
-    if (!isAvailable) {
-      setMessage('This car is not available for selected dates.')
-      setSubmitting(false)
-      return
-    }
-
-    const bookingRef = `FR-${Date.now()}`
-
-    const { data: customer, error: customerError } = await supabase
-      .from('customers')
-      .insert({
-        full_name: fullName.trim(),
-        phone: phone.trim(),
-        whatsapp_number: whatsapp.trim() || phone.trim(),
-      })
-      .select()
-      .single()
-
-    if (customerError || !customer) {
-      console.error(customerError)
-      setMessage('Could not save customer details.')
-      setSubmitting(false)
-      return
-    }
-
-    const { error: bookingError } = await supabase.from('bookings').insert({
-      booking_ref: bookingRef,
-      car_id: carId,
-      customer_id: customer.id,
-      pickup_date: pickupDateStr,
-      pickup_time: pickupTime,
-      return_date: returnDateStr,
-      return_time: returnTime,
-      pickup_location: pickupLocation.trim(),
-      return_location: pickupLocation.trim(),
-      total_days: totalDays,
-      daily_rate: car.daily_rate,
-      total_amount: totalAmount,
-      status: 'pending',
-      trip_type: tripType,
-      city_package_type: tripType !== 'daily_hire' ? cityPackageType : null,
-      route_origin: tripType !== 'daily_hire' ? selectedRoute.origin : null,
-      route_destination:
-        tripType !== 'daily_hire' ? selectedRoute.destination : null,
-      route_price:
-        tripType !== 'daily_hire' && !priceOnRequest
-          ? selectedRoute.price
-          : 0,
-      price_on_request: priceOnRequest,
-      extra_hours: Number(extraHours || 0),
-      extra_hour_rate: EXTRA_HOUR_RATE,
-    })
-
-    if (bookingError) {
-      console.error(bookingError)
-      setMessage('Could not submit booking. Please try again.')
-      setSubmitting(false)
-      return
-    }
-
-    const packageText =
-      tripType === 'daily_hire'
-        ? 'Daily hire within city'
-        : cityPackageLabels[cityPackageType]
-
-    const routeText =
-      tripType !== 'daily_hire' && selectedRoute
-        ? `${selectedRoute.origin} to ${selectedRoute.destination}`
-        : 'Daily hire'
-
-    const priceText = priceOnRequest
-      ? 'Price to be confirmed on WhatsApp'
-      : formatNaira(totalAmount)
-
-    const whatsappMessage = encodeURIComponent(
-      `Hello, I just submitted a car hire booking request.
-
-Booking Ref: ${bookingRef}
-Brand: Epiphany Ride / Fountain Ride
-Car: ${car.name}
-Trip Type: ${packageText}
-Route: ${routeText}
-Pickup Date: ${pickupDateStr}
-Pickup Time: ${pickupTime}
-Return Date: ${returnDateStr}
-Return Time: ${returnTime}
-Pickup Location: ${pickupLocation.trim()}
-Name: ${fullName.trim()}
-Phone: ${phone.trim()}
-WhatsApp: ${whatsapp.trim() || phone.trim()}
-Extra Hours: ${extraHours || 0}
-Extra Hour Rate: ${formatNaira(EXTRA_HOUR_RATE)}
-Price: ${priceText}
-
-Please confirm my booking.`
-    )
-
-    setWhatsappLink(`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`)
-    setMessage(
-      `Booking received. Ref: ${bookingRef}. Please send the details to WhatsApp for faster confirmation.`
-    )
-
-    setDateRange([null, null])
-    setPickupTime('')
-    setReturnTime('')
-    setFullName('')
-    setPhone('')
-    setWhatsapp('')
-    setPickupLocation('')
-    setTripType('daily_hire')
-    setCityPackageType('drop_off_only')
-    setSelectedRouteId('')
-    setExtraHours('0')
-    setSubmitting(false)
-
-    fetchBookedDates()
   }
 
-  if (loading) return <div className="p-6">Loading...</div>
-  if (!car) return <div className="p-6">Car not found</div>
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto p-4 md:p-6 grid md:grid-cols-2 gap-8">
-        <div>
-          <div className="bg-white rounded-3xl shadow overflow-hidden">
-            {selectedImage ? (
-              <img
-                src={selectedImage}
-                alt={car.name}
-                className="w-full h-80 md:h-[28rem] object-cover"
-              />
-            ) : (
-              <div className="w-full h-80 md:h-[28rem] bg-gray-100 flex items-center justify-center">
-                <p className="text-gray-400 font-semibold">
-                  Image coming soon
-                </p>
-              </div>
-            )}
-          </div>
-
-          {carImages.length > 1 && (
-            <div className="grid grid-cols-4 md:grid-cols-5 gap-3 mt-4">
-              {carImages.map((url: string, index: number) => (
-                <button
-                  key={`${url}-${index}`}
-                  type="button"
-                  onClick={() => setSelectedImage(url)}
-                  className={`h-20 rounded-2xl overflow-hidden border-2 ${
-                    selectedImage === url
-                      ? 'border-purple-700'
-                      : 'border-transparent'
-                  }`}
-                >
-                  <img
-                    src={url}
-                    alt={`${car.name} ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-6 bg-white rounded-3xl shadow p-6">
-            <p className="text-sm font-bold text-purple-700">
-              Chauffeur-driven car hire
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#f7f4fb]">
+        <div className="max-w-6xl mx-auto px-4 py-10">
+          <div className="bg-white rounded-3xl border p-8">
+            <p className="font-semibold text-gray-600">
+              Loading vehicle...
             </p>
-
-            <h1 className="text-3xl font-bold mt-2">{car.name}</h1>
-
-            <p className="text-gray-500 mt-2">
-              {car.transmission || 'Automatic'} • {car.fuel_type || 'Petrol'} •{' '}
-              {car.seats || 5} seats
-            </p>
-
-            <p className="text-2xl font-bold mt-4">
-              {formatNaira(car.daily_rate)} / day
-            </p>
-
-            <div className="mt-4 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
-              <p className="font-bold">Important booking notice</p>
-              <p className="mt-1">
-                48 hours advance notice required. Daily hire is 8am–8pm.
-                Extra hour is {formatNaira(EXTRA_HOUR_RATE)} per hour.
-              </p>
-            </div>
-
-            {car.description && (
-              <p className="text-gray-600 mt-4 leading-relaxed">
-                {car.description}
-              </p>
-            )}
-
-            <div className="grid grid-cols-2 gap-3 mt-5 text-sm">
-              <div className="bg-purple-50 rounded-2xl p-4">
-                <p className="font-bold">Driver included</p>
-                <p className="text-gray-500 mt-1">Professional service</p>
-              </div>
-
-              <div className="bg-purple-50 rounded-2xl p-4">
-                <p className="font-bold">Daily hire</p>
-                <p className="text-gray-500 mt-1">8am to 8pm</p>
-              </div>
-            </div>
           </div>
         </div>
+      </main>
+    )
+  }
 
-        <div className="bg-white rounded-3xl shadow p-6 h-fit">
-          <h2 className="text-2xl font-semibold">Reserve Your Ride</h2>
+  if (!car) {
+    return (
+      <main className="min-h-screen bg-[#f7f4fb]">
+        <div className="max-w-3xl mx-auto px-4 py-16">
+          <div className="bg-white rounded-3xl border p-8 text-center">
+            <h1 className="text-2xl font-black">
+              Vehicle not found
+            </h1>
 
-          <p className="text-gray-500 mt-1">
-            Select pickup and return dates. Unavailable dates are blocked.
-          </p>
-
-          <div className="mt-4 rounded-2xl bg-purple-50 p-4 text-sm">
-            <p className="font-bold text-purple-900">Booking policy</p>
-            <p className="text-gray-600 mt-1">
-              Please book at least 48 hours ahead. Extra hours are charged at{' '}
-              <b>{formatNaira(EXTRA_HOUR_RATE)}</b> per hour.
-            </p>
-          </div>
-
-          <div className="mt-5">
-            <label className="text-sm font-bold text-gray-700">Trip type</label>
-
-            <select
-              value={tripType}
-              onChange={(e) => {
-                setTripType(e.target.value)
-                setSelectedRouteId('')
-                setMessage('')
-                setWhatsappLink('')
-              }}
-              className="border p-3 rounded-xl w-full mt-2"
+            <Link
+              href="/cars"
+              className="inline-block mt-5 bg-purple-700 text-white px-6 py-3 rounded-2xl font-bold"
             >
-              <option value="daily_hire">Daily hire within city</option>
-              <option value="drop_off_only">City-to-city drop off only</option>
-              <option value="city_to_city_12hrs">City-to-city 12 hours</option>
-              <option value="city_to_city_24hrs">City-to-city 24 hours</option>
-            </select>
+              Browse Vehicles
+            </Link>
           </div>
+        </div>
+      </main>
+    )
+  }
 
-          {tripType !== 'daily_hire' && (
-            <div className="mt-4">
+  return (
+    <main className="min-h-screen bg-[#f7f4fb] text-gray-950">
+      <div className="max-w-7xl mx-auto px-4 py-6 md:py-10">
+        <Link
+          href="/cars"
+          className="inline-flex items-center text-sm font-bold text-purple-700 hover:text-purple-900 mb-5"
+        >
+          ← Back to vehicles
+        </Link>
+
+        <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-7">
+          {/* VEHICLE */}
+          <section>
+            <div className="bg-white rounded-[2rem] border shadow-sm overflow-hidden">
+              <div className="h-[320px] md:h-[480px] bg-gray-100">
+                {selectedImage ? (
+                  <img
+                    src={selectedImage}
+                    alt={car.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <p className="text-gray-400 font-semibold">
+                      Image coming soon
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {carImages.length > 1 && (
+              <div className="grid grid-cols-4 md:grid-cols-5 gap-3 mt-4">
+                {carImages.map(
+                  (url: string, index: number) => (
+                    <button
+                      key={`${url}-${index}`}
+                      type="button"
+                      onClick={() =>
+                        setSelectedImage(url)
+                      }
+                      className={`h-20 rounded-2xl overflow-hidden border-2 ${
+                        selectedImage === url
+                          ? 'border-purple-700'
+                          : 'border-transparent'
+                      }`}
+                    >
+                      <img
+                        src={url}
+                        alt={`${car.name} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  )
+                )}
+              </div>
+            )}
+
+            <div className="bg-white rounded-[2rem] border shadow-sm p-6 md:p-8 mt-5">
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full bg-purple-100 text-purple-800 px-3 py-1 text-xs font-black">
+                  DRIVER INCLUDED
+                </span>
+
+                <span className="rounded-full bg-green-100 text-green-800 px-3 py-1 text-xs font-black">
+                  CHAUFFEUR-DRIVEN
+                </span>
+              </div>
+
+              <h1 className="text-3xl md:text-4xl font-black mt-4">
+                {car.name}
+              </h1>
+
+              <p className="text-gray-500 mt-2">
+                {car.transmission || 'Automatic'} •{' '}
+                {car.fuel_type || 'Petrol'} •{' '}
+                {car.seats || 5} seats
+              </p>
+
+              <div className="mt-6">
+                <p className="text-sm font-bold text-gray-500">
+                  Guide price
+                </p>
+
+                <p className="text-3xl font-black mt-1">
+                  From {formatNaira(car.daily_rate)}
+                  <span className="text-base text-gray-500 font-semibold">
+                    {' '}
+                    / day
+                  </span>
+                </p>
+
+                <p className="text-sm text-gray-500 mt-2 max-w-xl">
+                  This is a guide price. Send your journey
+                  details and the vehicle owner will provide
+                  the quotation for your specific hire.
+                </p>
+              </div>
+
+              <div className="mt-6 rounded-2xl bg-purple-50 border border-purple-100 p-5">
+                <p className="font-black text-purple-950">
+                  Vehicle + driver included
+                </p>
+
+                <p className="text-sm leading-6 text-gray-600 mt-2">
+                  You are hiring this vehicle as a
+                  chauffeur-driven service. The quotation you
+                  receive covers the vehicle and its driver
+                  together.
+                </p>
+              </div>
+
+              {car.description && (
+                <p className="text-gray-600 leading-7 mt-6">
+                  {car.description}
+                </p>
+              )}
+
+              <div className="grid sm:grid-cols-3 gap-3 mt-6">
+                <Feature
+                  title="Request a quote"
+                  text="Tell the owner about your journey."
+                />
+
+                <Feature
+                  title="Negotiate"
+                  text="Discuss the quotation on Fountain Ride."
+                />
+
+                <Feature
+                  title="Pay securely"
+                  text="Pay after you agree the final price."
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* REQUEST FORM */}
+          <section className="bg-white rounded-[2rem] border shadow-sm p-5 md:p-7 h-fit lg:sticky lg:top-6">
+            <p className="text-xs font-black tracking-[0.18em] text-purple-700 uppercase">
+              Vehicle Hire
+            </p>
+
+            <h2 className="text-2xl md:text-3xl font-black mt-2">
+              Request a Quote
+            </h2>
+
+            <p className="text-gray-500 mt-2 leading-6">
+              Tell us about your journey. No payment is
+              required until you receive and accept a
+              quotation.
+            </p>
+
+            <div className="mt-6">
               <label className="text-sm font-bold text-gray-700">
-                Select route
+                Trip type
               </label>
 
               <select
-                value={selectedRouteId}
-                onChange={(e) => {
-                  setSelectedRouteId(e.target.value)
-                  setMessage('')
-                  setWhatsappLink('')
-                }}
-                className="border p-3 rounded-xl w-full mt-2"
+                value={tripType}
+                onChange={(e) =>
+                  setTripType(e.target.value)
+                }
+                className="border border-gray-200 p-3.5 rounded-2xl w-full mt-2 bg-white"
               >
-                <option value="">Choose destination</option>
-                {routePrices
-                  .filter((route: any) => route.package_type === tripType)
-                  .map((route: any) => (
-                    <option key={route.id} value={route.id}>
-                      {route.origin} to {route.destination} —{' '}
-                      {route.price_on_request
-                        ? 'Complete booking via WhatsApp for actual price'
-                        : formatNaira(route.price)}
-                    </option>
-                  ))}
-              </select>
+                <option value="local">
+                  Local / within city
+                </option>
 
-              {selectedRoute && (
-                <div className="mt-3 bg-gray-50 rounded-2xl p-4">
+                <option value="intercity">
+                  City to city
+                </option>
+
+                <option value="event">
+                  Event / special occasion
+                </option>
+
+                <option value="business">
+                  Business / corporate
+                </option>
+
+                <option value="airport">
+                  Airport transfer
+                </option>
+
+                <option value="other">
+                  Other journey
+                </option>
+              </select>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
+              <Field
+                label="Pickup location"
+                required
+              >
+                <input
+                  value={pickupAddress}
+                  onChange={(e) =>
+                    setPickupAddress(e.target.value)
+                  }
+                  placeholder="Where should the driver pick you up?"
+                  className="border border-gray-200 p-3.5 rounded-2xl w-full"
+                />
+              </Field>
+
+              <Field
+                label="Destination"
+                required
+              >
+                <input
+                  value={destinationAddress}
+                  onChange={(e) =>
+                    setDestinationAddress(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Where are you going?"
+                  className="border border-gray-200 p-3.5 rounded-2xl w-full"
+                />
+              </Field>
+            </div>
+
+            <div className="mt-4">
+              <label className="text-sm font-bold text-gray-700">
+                Hire dates{' '}
+                <span className="text-red-500">*</span>
+              </label>
+
+              <DatePicker
+                selectsRange
+                startDate={startDate}
+                endDate={endDate}
+                onChange={(
+                  update: [
+                    Date | null,
+                    Date | null,
+                  ]
+                ) => {
+                  setDateRange(update)
+                  setMessage('')
+                }}
+                minDate={minimumPickupDate}
+                placeholderText="Select pickup and return dates"
+                className="border border-gray-200 p-3.5 rounded-2xl w-full mt-2"
+              />
+
+              <p className="text-xs text-gray-500 mt-2">
+                Please request your vehicle at least 48
+                hours in advance.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <Field
+                label="Pickup time"
+                required
+              >
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) =>
+                    setStartTime(e.target.value)
+                  }
+                  className="border border-gray-200 p-3.5 rounded-2xl w-full"
+                />
+              </Field>
+
+              <Field label="Expected return time">
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) =>
+                    setEndTime(e.target.value)
+                  }
+                  className="border border-gray-200 p-3.5 rounded-2xl w-full"
+                />
+              </Field>
+            </div>
+
+            <div className="mt-4">
+              <Field label="Number of passengers">
+                <input
+                  type="number"
+                  min="1"
+                  max={car.seats || undefined}
+                  value={passengerCount}
+                  onChange={(e) =>
+                    setPassengerCount(e.target.value)
+                  }
+                  placeholder={`Up to ${
+                    car.seats || 5
+                  } passengers`}
+                  className="border border-gray-200 p-3.5 rounded-2xl w-full"
+                />
+              </Field>
+            </div>
+
+            <div className="mt-4">
+              <Field label="Anything else the owner should know?">
+                <textarea
+                  value={specialRequirements}
+                  onChange={(e) =>
+                    setSpecialRequirements(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Luggage, multiple stops, event details, waiting time, special requirements..."
+                  rows={4}
+                  className="border border-gray-200 p-3.5 rounded-2xl w-full resize-none"
+                />
+              </Field>
+            </div>
+
+            <div className="border-t mt-7 pt-6">
+              <h3 className="font-black text-lg">
+                Your details
+              </h3>
+
+              <p className="text-sm text-gray-500 mt-1">
+                We'll use these details for this quotation
+                request.
+              </p>
+
+              <div className="mt-4">
+                <Field
+                  label="Full name"
+                  required
+                >
+                  <input
+                    value={customerName}
+                    onChange={(e) =>
+                      setCustomerName(e.target.value)
+                    }
+                    placeholder="Your full name"
+                    className="border border-gray-200 p-3.5 rounded-2xl w-full"
+                  />
+                </Field>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4 mt-4">
+                <Field
+                  label="Mobile number"
+                  required
+                >
+                  <input
+                    type="tel"
+                    value={customerPhone}
+                    onChange={(e) =>
+                      setCustomerPhone(
+                        e.target.value
+                      )
+                    }
+                    placeholder="080..."
+                    className="border border-gray-200 p-3.5 rounded-2xl w-full"
+                  />
+                </Field>
+
+                <Field label="Email optional">
+                  <input
+                    type="email"
+                    value={customerEmail}
+                    onChange={(e) =>
+                      setCustomerEmail(
+                        e.target.value
+                      )
+                    }
+                    placeholder="you@example.com"
+                    className="border border-gray-200 p-3.5 rounded-2xl w-full"
+                  />
+                </Field>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-gray-50 p-4">
+              <div className="flex gap-3">
+                <div className="text-xl">✓</div>
+
+                <div>
                   <p className="font-bold">
-                    {selectedRoute.origin} to {selectedRoute.destination}
+                    No payment now
                   </p>
 
-                  {selectedRoute.price_on_request ? (
-                    <div>
-                      <p className="text-lg font-black mt-1 text-purple-700">
-                        Complete booking via WhatsApp for actual price
-                      </p>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Pricing may depend on exact location, vehicle type,
-                        waiting time, and trip details.
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-2xl font-black mt-1">
-                      {formatNaira(selectedRoute.price)}
-                    </p>
-                  )}
-
-                  {selectedRoute.notes && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      {selectedRoute.notes}
-                    </p>
-                  )}
+                  <p className="text-sm text-gray-500 mt-1 leading-5">
+                    Submit your request, receive the
+                    owner's quotation, negotiate if
+                    necessary, and pay only after you agree
+                    the final price.
+                  </p>
                 </div>
-              )}
+              </div>
             </div>
-          )}
 
-          <div className="mt-4">
-            <DatePicker
-              selectsRange
-              startDate={pickupDate}
-              endDate={returnDate}
-              onChange={(update: [Date | null, Date | null]) => {
-                const [start, end] = update
-
-                if (start && start < minimumPickupDate) {
-                  setMessage('Bookings require at least 48 hours advance notice.')
-                  setDateRange([null, null])
-                  return
-                }
-
-                if (start && end && rangeContainsBookedDate(start, end)) {
-                  setMessage(
-                    'Selected range includes unavailable dates. Please choose another range.'
-                  )
-                  setDateRange([null, null])
-                  return
-                }
-
-                setMessage('')
-                setWhatsappLink('')
-                setDateRange(update)
-              }}
-              filterDate={(date: Date) => !isDateBooked(date)}
-              minDate={minimumPickupDate}
-              placeholderText="Select pickup and return dates"
-              className="border p-3 rounded-xl w-full"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <input
-              type="time"
-              className="border p-3 rounded-xl"
-              value={pickupTime}
-              onChange={(e) => setPickupTime(e.target.value)}
-            />
-
-            <input
-              type="time"
-              className="border p-3 rounded-xl"
-              value={returnTime}
-              onChange={(e) => setReturnTime(e.target.value)}
-            />
-          </div>
-
-          <input
-            className="border p-3 rounded-xl w-full mt-4"
-            placeholder="Pickup location"
-            value={pickupLocation}
-            onChange={(e) => setPickupLocation(e.target.value)}
-          />
-
-          <input
-            type="number"
-            min="0"
-            className="border p-3 rounded-xl w-full mt-4"
-            placeholder="Extra hours optional"
-            value={extraHours}
-            onChange={(e) => setExtraHours(e.target.value)}
-          />
-
-          <input
-            className="border p-3 rounded-xl w-full mt-4"
-            placeholder="Full name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
-
-          <input
-            className="border p-3 rounded-xl w-full mt-4"
-            placeholder="Phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-
-          <input
-            className="border p-3 rounded-xl w-full mt-4"
-            placeholder="WhatsApp optional"
-            value={whatsapp}
-            onChange={(e) => setWhatsapp(e.target.value)}
-          />
-
-          <div className="bg-gray-50 rounded-2xl p-4 mt-5">
-            <p>
-              Total days: <b>{totalDays}</b>
-            </p>
-
-            <p>
-              Base price:{' '}
-              <b>
-                {priceOnRequest
-                  ? 'To be confirmed on WhatsApp'
-                  : tripType !== 'daily_hire'
-                    ? selectedRoute
-                      ? formatNaira(selectedRoute.price)
-                      : formatNaira(0)
-                    : formatNaira(baseAmount)}
-              </b>
-            </p>
-
-            {!priceOnRequest && (
-              <>
-                <p>
-                  Extra hours:{' '}
-                  <b>
-                    {extraHours || 0} × {formatNaira(EXTRA_HOUR_RATE)}
-                  </b>
+            {message && (
+              <div className="mt-5 rounded-2xl bg-red-50 border border-red-100 p-4">
+                <p className="text-sm font-semibold text-red-700">
+                  {message}
                 </p>
-
-                <p className="text-xl mt-2">
-                  Total: <b>{formatNaira(totalAmount)}</b>
-                </p>
-              </>
+              </div>
             )}
 
-            {priceOnRequest && (
-              <p className="text-sm text-purple-700 font-semibold mt-2">
-                Please submit your request and complete pricing on WhatsApp.
-              </p>
-            )}
-          </div>
+            <button
+              type="button"
+              onClick={submitQuoteRequest}
+              disabled={submitting}
+              className="mt-5 w-full bg-purple-700 hover:bg-purple-800 disabled:bg-gray-400 text-white py-4 rounded-2xl font-black text-base transition"
+            >
+              {submitting
+                ? 'Sending request...'
+                : 'Request Quote'}
+            </button>
 
-          <button
-            onClick={submitBooking}
-            disabled={submitting}
-            className="mt-5 w-full bg-purple-700 hover:bg-purple-800 disabled:bg-gray-400 text-white py-3 rounded-2xl font-semibold"
-          >
-            {submitting ? 'Submitting...' : 'Submit Booking'}
-          </button>
-
-          {message && (
-            <p className="mt-4 text-sm font-medium text-purple-700">
-              {message}
+            <p className="text-center text-xs text-gray-400 mt-3">
+              Vehicle and driver are included in the
+              quotation.
             </p>
-          )}
-
-          {whatsappLink && (
-            <a href={whatsappLink} target="_blank">
-              <button className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl font-semibold">
-                Send Booking to WhatsApp
-              </button>
-            </a>
-          )}
+          </section>
         </div>
       </div>
+    </main>
+  )
+}
+
+function Field({
+  label,
+  required = false,
+  children,
+}: {
+  label: string
+  required?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-bold text-gray-700">
+        {label}
+        {required && (
+          <span className="text-red-500"> *</span>
+        )}
+      </span>
+
+      <div className="mt-2">{children}</div>
+    </label>
+  )
+}
+
+function Feature({
+  title,
+  text,
+}: {
+  title: string
+  text: string
+}) {
+  return (
+    <div className="rounded-2xl bg-gray-50 p-4">
+      <p className="font-black text-sm">{title}</p>
+      <p className="text-xs text-gray-500 mt-1 leading-5">
+        {text}
+      </p>
     </div>
   )
 }

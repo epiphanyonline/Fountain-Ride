@@ -1,272 +1,251 @@
 import Link from 'next/link'
-import FaqBot from './components/FaqBot'
+import MarketplaceNav from './components/MarketplaceNav'
 
-export default function HomePage() {
-  const whatsappNumber = '2348168839382'
+const services = [
+  {
+    number: '01',
+    label: 'I ALREADY HAVE A CAR',
+    title: 'Hire a Driver',
+    tagline: 'Your car. Our driver.',
+    description:
+      'Need someone reliable behind the wheel? Request a professional driver for your personal journeys, family outings, business travel, events or longer trips.',
+    href: '/hire-driver',
+    cta: 'Hire a Driver',
+    dark: false,
+    features: ['Use your own vehicle', 'Receive and negotiate offers', 'Manage your booking'],
+  },
+  {
+    number: '02',
+    label: 'I NEED A CAR',
+    title: 'Hire a Car',
+    tagline: 'Vehicle + driver included.',
+    description:
+      'Choose a vehicle for an everyday journey, airport transfer, family outing, event or longer booking. Your car hire comes with a driver.',
+    href: '/cars',
+    cta: 'Explore Available Cars',
+    dark: true,
+    features: ['Browse available vehicles', 'Request a quotation', 'Car and driver together'],
+  },
+]
 
-  const whatsappText = encodeURIComponent(
-    'Hello, I need a reliable car with driver for my next trip. Please assist me with booking.'
-  )
+const steps = [
+  {
+    number: '01',
+    title: 'Choose your service',
+    description: 'Hire a driver for your car or hire a car with a driver.',
+  },
+  {
+    number: '02',
+    title: 'Tell us what you need',
+    description: 'Share your journey, schedule and booking requirements.',
+  },
+  {
+    number: '03',
+    title: 'Review your offer',
+    description: 'Receive a quotation, discuss the details and agree on the price.',
+  },
+  {
+    number: '04',
+    title: 'Confirm your booking',
+    description: 'Follow the available payment and confirmation steps.',
+  },
+]
 
-  const airportText = encodeURIComponent(
-    'Hello, I need airport pickup. My airport is: , arrival date/time: , destination: , passengers: '
-  )
-
+export default function Home() {
   return (
-    <main className="min-h-screen bg-[#f7f4fb] text-gray-950">
-      {/* HERO */}
-      <section className="max-w-7xl mx-auto px-5 py-6 md:py-12">
-        <div className="rounded-[2rem] bg-white shadow-sm border overflow-hidden">
-          <div className="grid lg:grid-cols-2">
-            <div className="p-6 md:p-12 flex flex-col justify-center">
-              <p className="text-sm font-bold text-purple-700">
-                Careful drivers. Professional service. No overspeeding.
-              </p>
+    <>
+      <MarketplaceNav />
 
-              <p className="text-xs mt-2 text-gray-500 font-semibold">
-                Powered by Epiphany Ride · Fountain Ride
-              </p>
+      <main className="min-h-screen bg-[#F8F7FB] text-slate-950">
 
-              <h1 className="text-4xl md:text-6xl font-black mt-4 leading-tight">
-                Need a reliable car for your next trip?
-              </h1>
+        <section
+          id="services"
+          className="mx-auto max-w-7xl scroll-mt-24 px-5 pt-6 pb-12 sm:px-8 sm:pt-8 lg:px-10 lg:pt-10 lg:pb-16"
+        >
 
-              <p className="text-gray-600 mt-5 text-base md:text-lg leading-relaxed">
-                Book clean, decent cars with experienced drivers who know the routes —
-                ideal for airport pickup, city rides, city-to-city travel, business trips,
-                and picking up loved ones.
-              </p>
-
-              <p className="mt-4 font-semibold text-gray-800">
-                Safe. Comfortable. On time.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 mt-8">
-                <Link href="/cars" className="w-full sm:w-auto">
-                  <button className="w-full bg-purple-700 hover:bg-purple-800 text-white px-7 py-4 rounded-2xl font-bold shadow">
-                    View Available Cars
-                  </button>
-                </Link>
-
-                <a
-                  href={`https://wa.me/${whatsappNumber}?text=${whatsappText}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto"
-                >
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white px-7 py-4 rounded-2xl font-bold shadow">
-                    Chat on WhatsApp
-                  </button>
-                </a>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
-                {[
-                  ['Airport Pickup', 'Arrival & drop-off'],
-                  ['City to City', 'Major routes'],
-                  ['Business Trips', 'Professional service'],
-                  ['Daily Hire', '8am – 8pm'],
-                ].map(([title, text]) => (
-                  <div key={title} className="bg-[#f7f4fb] rounded-2xl p-4 border">
-                    <p className="font-black text-sm">{title}</p>
-                    <p className="text-xs text-gray-500 mt-1">{text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="relative min-h-[420px] md:min-h-[580px]">
-              <img
-                src="https://mssizgzdewgutcmqdsim.supabase.co/storage/v1/object/public/images/Fountain%20Ride.png"
-                alt="Fountain Ride airport pickup"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-
-              <div className="absolute top-4 right-4 md:top-5 md:right-5 bg-purple-800 text-white px-4 py-3 md:p-5 rounded-2xl shadow-lg max-w-[180px] md:max-w-[220px]">
-                <p className="font-bold text-base md:text-lg leading-tight">
-                  Careful. Professional.
-                </p>
-
-                <p className="text-xs md:text-sm mt-1 text-purple-100">
-                  We never overspeed.
-                </p>
-              </div>
-
-              <div className="absolute bottom-4 left-4 right-4 md:bottom-5 md:left-5 md:right-5 bg-white/95 backdrop-blur rounded-2xl md:rounded-3xl p-4 md:p-5 shadow">
-                <p className="text-sm font-bold text-purple-700">
-                  Daily Hire: 8am – 8pm
-                </p>
-
-                <p className="text-2xl md:text-xl font-black mt-1 leading-tight">
-                  Need more time?
-                </p>
-
-                <p className="text-base md:text-lg font-semibold text-gray-700 mt-1">
-                  Extended hours available.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SERVICES */}
-      <section className="max-w-7xl mx-auto px-5 pb-8">
-        <div className="grid md:grid-cols-5 gap-4">
-          {[
-            ['✈️', 'Airport Pickup', 'On-time arrival and drop-off'],
-            ['🏙️', 'City Travel', 'Move easily within cities'],
-            ['🚗', 'City to City', 'Comfortable long trips'],
-            ['👨‍👩‍👧', 'Family Trips', 'Pick up loved ones safely'],
-            ['💼', 'Business Travel', 'Professional service'],
-          ].map(([icon, title, text]) => (
-            <div key={title} className="bg-white rounded-3xl p-5 border shadow-sm">
-              <p className="text-2xl">{icon}</p>
-              <p className="font-black mt-3">{title}</p>
-              <p className="text-sm text-gray-500 mt-2">{text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* TRUST SECTION */}
-      <section className="max-w-7xl mx-auto px-5 pb-8">
-        <div className="bg-purple-800 rounded-[2rem] p-6 text-white grid md:grid-cols-4 gap-4">
-          {[
-            ['Careful Drivers', 'We prioritize your safety always'],
-            ['Clean Cars', 'Well-maintained vehicles'],
-            ['On Time', 'We respect your schedule'],
-            ['Support', 'We’re available when needed'],
-          ].map(([title, text]) => (
-            <div key={title} className="border-white/10 md:border-r last:border-r-0">
-              <p className="font-black">{title}</p>
-              <p className="text-sm text-purple-100 mt-1">{text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* AIRPORT BOOKING */}
-      <section className="max-w-7xl mx-auto px-5 pb-8">
-        <div className="bg-white rounded-[2rem] shadow-sm border p-6 md:p-8">
-          <div className="grid md:grid-cols-2 gap-6 items-center">
-            <div>
-              <p className="text-sm font-bold text-purple-700">
-                Quick Airport Pickup
-              </p>
-
-              <h2 className="text-3xl font-black mt-2">
-                Arriving in Lagos, Abuja or Ibadan?
-              </h2>
-
-              <p className="text-gray-600 mt-3">
-                Tell us your arrival details and we’ll arrange a driver ahead of time.
-              </p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-3">
-              <a
-                href={`https://wa.me/${whatsappNumber}?text=${airportText}`}
-                target="_blank"
-                rel="noopener noreferrer"
+          <div className="grid gap-6 lg:grid-cols-2">
+            {services.map((service) => (
+              <article
+                key={service.number}
+                className={`flex min-h-[480px] flex-col overflow-hidden rounded-[2rem] p-8 shadow-xl sm:p-10 ${
+                  service.dark
+                    ? 'bg-[#10172A] text-white'
+                    : 'border border-purple-100 bg-white text-slate-950'
+                }`}
               >
-                <button className="w-full bg-purple-700 text-white py-4 rounded-2xl font-bold">
-                  Book Airport Pickup
-                </button>
-              </a>
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`text-xs font-black tracking-[0.18em] ${
+                      service.dark ? 'text-purple-300' : 'text-purple-700'
+                    }`}
+                  >
+                    {service.label}
+                  </span>
+                  <span
+                    className={`text-4xl font-black ${
+                      service.dark ? 'text-white/15' : 'text-purple-100'
+                    }`}
+                  >
+                    {service.number}
+                  </span>
+                </div>
 
-              <Link href="/cars">
-                <button className="w-full bg-gray-950 text-white py-4 rounded-2xl font-bold">
-                  Choose a Car First
-                </button>
+                <h3 className="mt-12 text-4xl font-black tracking-tight sm:text-5xl">
+                  {service.title}
+                </h3>
+                <p
+                  className={`mt-3 text-xl font-bold ${
+                    service.dark ? 'text-purple-300' : 'text-purple-700'
+                  }`}
+                >
+                  {service.tagline}
+                </p>
+
+                <p
+                  className={`mt-6 max-w-lg leading-8 ${
+                    service.dark ? 'text-slate-300' : 'text-slate-600'
+                  }`}
+                >
+                  {service.description}
+                </p>
+
+                <div className="mt-8 flex flex-wrap gap-2">
+                  {service.features.map((feature) => (
+                    <span
+                      key={feature}
+                      className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                        service.dark
+                          ? 'bg-white/10 text-slate-200'
+                          : 'bg-purple-50 text-purple-800'
+                      }`}
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+
+                <Link
+                  href={service.href}
+                  className={`mt-auto inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-base font-black transition sm:w-fit ${
+                    service.dark
+                      ? 'bg-purple-600 text-white hover:bg-purple-500'
+                      : 'bg-[#10172A] text-white hover:bg-purple-800'
+                  }`}
+                >
+                  {service.cta} <span className="ml-3" aria-hidden="true">→</span>
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-white py-20 lg:py-28">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-purple-700">
+              Simple by design
+            </p>
+            <h2 className="mt-4 max-w-3xl text-4xl font-black tracking-[-0.04em] sm:text-5xl">
+              From request to agreement.
+            </h2>
+
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {steps.map((step) => (
+                <div
+                  key={step.number}
+                  className="rounded-3xl border border-slate-100 bg-[#F8F7FB] p-7"
+                >
+                  <span className="text-3xl font-black text-purple-700">
+                    {step.number}
+                  </span>
+                  <h3 className="mt-7 text-xl font-black">{step.title}</h3>
+                  <p className="mt-3 leading-7 text-slate-600">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-[2rem] bg-purple-700 p-8 text-white sm:p-10">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-purple-200">
+                For professional drivers
+              </p>
+              <h2 className="mt-5 text-3xl font-black sm:text-4xl">
+                Your next opportunity starts here.
+              </h2>
+              <p className="mt-5 leading-8 text-purple-100">
+                Join Fountain Ride to connect with customers looking for
+                professional driving services.
+              </p>
+              <Link
+                href="/driver/register"
+                className="mt-8 inline-flex rounded-2xl bg-white px-6 py-4 font-bold text-purple-800"
+              >
+                Join as a Driver
+              </Link>
+            </div>
+
+            <div className="rounded-[2rem] bg-[#10172A] p-8 text-white sm:p-10">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-purple-300">
+                For vehicle owners
+              </p>
+              <h2 className="mt-5 text-3xl font-black sm:text-4xl">
+                Put your vehicle to work.
+              </h2>
+              <p className="mt-5 leading-8 text-slate-300">
+                List your eligible vehicle and connect with customers seeking
+                chauffeur-driven car hire.
+              </p>
+              <Link
+                href="/list-your-car"
+                className="mt-8 inline-flex rounded-2xl bg-purple-600 px-6 py-4 font-bold text-white"
+              >
+                List Your Car
               </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* HOW IT WORKS */}
-      <section className="max-w-7xl mx-auto px-5 pb-10">
-        <div className="grid md:grid-cols-4 gap-4">
-          {[
-            ['1. View cars', 'Browse and choose a vehicle'],
-            ['2. Pick dates', 'Select your trip period'],
-            ['3. Send request', 'Submit your details'],
-            ['4. Get confirmed', 'We prepare your ride'],
-          ].map(([title, text]) => (
-            <div key={title} className="bg-white rounded-3xl p-6 shadow-sm border">
-              <p className="font-black">{title}</p>
-              <p className="text-gray-500 text-sm mt-2">{text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FINAL CUSTOMER CTA */}
-      <section className="max-w-7xl mx-auto px-5 pb-8">
-        <div className="bg-gray-950 rounded-[2rem] p-8 text-white">
-          <h2 className="text-2xl md:text-4xl font-black">
-            Wherever you’re going, we’ll get you there safely.
+        <section className="bg-[#080D1C] px-5 py-20 text-center text-white sm:px-8 lg:py-28">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-purple-300">
+            Fountain Ride Mobile Garage™
+          </p>
+          <h2 className="mx-auto mt-5 max-w-4xl text-4xl font-black tracking-[-0.045em] sm:text-6xl">
+            Your journey.
+            <span className="block text-purple-400">Your choice.</span>
           </h2>
-
-          <p className="text-gray-300 mt-3">
-            Office: 100, Adekunle Fajuyi Road, Adamasingba, Ibadan.
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+            Beginning in Ibadan, with a vision to make professional transport
+            services more accessible across Nigeria.
           </p>
-
-          <p className="text-gray-300 mt-1">
-            WhatsApp: +234 816 883 9382
-          </p>
-
-          <a
-            href={`https://wa.me/${whatsappNumber}?text=${whatsappText}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="#services"
+            className="mt-9 inline-flex rounded-2xl bg-purple-600 px-8 py-4 font-bold text-white transition hover:bg-purple-500"
           >
-            <button className="mt-6 bg-white text-gray-950 px-8 py-4 rounded-2xl font-bold">
-              Chat on WhatsApp
-            </button>
-          </a>
-        </div>
-      </section>
+            Find Your Way to Move
+          </Link>
+        </section>
 
-      {/* SMALL OWNER CTA AT VERY BOTTOM */}
-      <section className="max-w-7xl mx-auto px-5 pb-20">
-        <div className="rounded-[2rem] border border-purple-100 bg-white/80 p-5 md:p-6 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-purple-700">
-                Vehicle Owners
-              </p>
-
-              <h3 className="mt-2 text-xl md:text-2xl font-black text-gray-950">
-                Want to list your car with Fountain Ride?
-              </h3>
-
-              <p className="mt-2 text-sm md:text-base text-gray-600 leading-relaxed max-w-2xl">
-                Use our owner earnings calculator to estimate possible take-home before submitting your car.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              <Link href="/owner-earnings" className="w-full sm:w-auto">
-                <button className="w-full rounded-2xl bg-purple-700 px-6 py-4 text-sm md:text-base font-bold text-white shadow-lg shadow-purple-500/20 hover:bg-purple-800 transition">
-                  Owner Earnings Calculator
-                </button>
+        <footer className="border-t border-slate-200 bg-white px-5 py-8 sm:px-8">
+          <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-slate-500 sm:flex-row">
+            <span>© {new Date().getFullYear()} Fountain Ride. Mobile Garage™.</span>
+            <div className="flex flex-wrap gap-5">
+              <Link href="/hire-driver" className="hover:text-purple-700">
+                Hire a Driver
               </Link>
-
-              <Link href="/list-your-car" className="w-full sm:w-auto">
-                <button className="w-full rounded-2xl border border-gray-300 bg-white px-6 py-4 text-sm md:text-base font-bold text-gray-900 hover:bg-purple-50 transition">
-                  List My Car
-                </button>
+              <Link href="/cars" className="hover:text-purple-700">
+                Hire a Car
+              </Link>
+              <Link href="/driver/login" className="hover:text-purple-700">
+                Driver Login
               </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      <FaqBot />
-    </main>
+        </footer>
+      </main>
+    </>
   )
 }

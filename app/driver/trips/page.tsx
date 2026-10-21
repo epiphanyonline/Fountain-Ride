@@ -1,0 +1,14 @@
+'use client'
+import {useEffect,useMemo,useState} from 'react'
+import Link from 'next/link'
+import MarketplaceNav from '../../components/MarketplaceNav'
+import {money} from '../../../lib/marketplace'
+
+export default function DriverTrips(){
+ const [trips,setTrips]=useState<any[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState('')
+ function headers(){return {'x-driver-application-id':localStorage.getItem('fountain_driver_application_id')||'','x-driver-token':localStorage.getItem('fountain_driver_token')||''}}
+ useEffect(()=>{fetch('/api/marketplace/driver/trips',{headers:headers()}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Unable to load trips');setTrips(d.trips||[])}).catch(e=>setError(e.message)).finally(()=>setLoading(false))},[])
+ const groups=useMemo(()=>({active:trips.filter(t=>!['completed','cancelled','refunded'].includes(t.status)),completed:trips.filter(t=>t.status==='completed'),other:trips.filter(t=>['cancelled','refunded'].includes(t.status))}),[trips])
+ return <><MarketplaceNav/><main className="min-h-screen bg-[#f7f4fb] px-5 py-8"><div className="max-w-5xl mx-auto"><p className="text-purple-700 font-black">DRIVER</p><h1 className="text-4xl font-black mt-1">Trips</h1><p className="text-gray-500 mt-2">Your confirmed Driver Hire bookings and passenger trips.</p>{error&&<div className="mt-5 rounded-2xl bg-red-50 border border-red-200 p-4 font-bold text-red-700">{error}</div>}{loading?<p className="mt-8">Loading tripsâ€¦</p>:<><TripSection title="Active trips" trips={groups.active}/><TripSection title="Completed" trips={groups.completed}/>{groups.other.length>0&&<TripSection title="Cancelled / refunded" trips={groups.other}/>}</>}</div></main></>
+}
+function TripSection({title,trips}:{title:string;trips:any[]}){return <section className="mt-8"><div className="flex justify-between items-end"><h2 className="text-2xl font-black">{title}</h2><span className="text-sm font-bold text-gray-400">{trips.length}</span></div><div className="grid gap-3 mt-3">{trips.length===0?<div className="bg-white border rounded-3xl p-5 text-gray-500">No {title.toLowerCase()}.</div>:trips.map(t=><Link href={t.booking_type === "driver_hire" ? `/driver/hire-jobs/${t.id}` : `/trips/${t.id}?as=driver`} key={t.id} className="bg-white border rounded-3xl p-5 hover:border-purple-400"><div className="flex gap-3 justify-between"><div><p className="text-xs font-black text-purple-700">{t.booking_ref}</p><h3 className="text-lg font-black mt-1">{t.pickup_address} â†’ {t.dropoff_address}</h3><p className="text-sm text-gray-500 mt-2">{t.pickup_date} Â· {t.pickup_time}</p></div><div className="text-right"><p className="font-black">{money(t.agreed_fare||t.offer?.amount||0)}</p><span className="inline-block mt-2 text-xs font-black uppercase bg-purple-50 text-purple-700 px-2 py-1 rounded-full">{String(t.status).replaceAll('_',' ')}</span></div></div></Link>)}</div></section>}

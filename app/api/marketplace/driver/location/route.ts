@@ -1,0 +1,4 @@
+import {NextResponse} from 'next/server'
+import {getSupabaseAdmin} from '../../../../../lib/server/supabaseAdmin'
+import {getDriverForToken,driverToken,driverApplicationId} from '../../../../../lib/server/marketplaceAuth'
+export async function POST(req:Request){const driver=await getDriverForToken(driverApplicationId(req),driverToken(req));if(!driver)return NextResponse.json({error:'Unauthorized'},{status:401});const b=await req.json().catch(()=>null);const lat=Number(b?.lat),lng=Number(b?.lng);if(!Number.isFinite(lat)||!Number.isFinite(lng))return NextResponse.json({error:'Invalid location'},{status:400});const db=getSupabaseAdmin();const {error}=await db.from('driver_applications').update({current_lat:lat,current_lng:lng,last_location_at:new Date().toISOString()}).eq('id',driver.id);if(error)return NextResponse.json({error:error.message},{status:500});return NextResponse.json({ok:true})}

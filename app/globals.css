@@ -29,3 +29,48 @@ body {
   background-color: #6d28d9 !important;
   color: white !important;
 }
+.input { width:100%; border:1px solid #e5e7eb; border-radius:1rem; padding:.9rem 1rem; background:#fff; outline:none; }
+.input:focus { border-color:#7e22ce; box-shadow:0 0 0 3px rgba(126,34,206,.08); }
+
+/* Marketplace motion + premium cards */
+@keyframes fr-rise { from { opacity:0; transform:translateY(18px) scale(.985) } to { opacity:1; transform:translateY(0) scale(1) } }
+@keyframes fr-slide { from { opacity:0; transform:translateX(22px) } to { opacity:1; transform:translateX(0) } }
+.fr-reveal { animation:fr-rise .42s cubic-bezier(.2,.8,.2,1) both; }
+.fr-step { animation:fr-slide .35s ease both; }
+.fr-choice { transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.fr-choice:hover { transform:translateY(-4px); box-shadow:0 18px 45px rgba(54,22,87,.11); }
+.fr-glass { background:rgba(255,255,255,.88); backdrop-filter:blur(18px); }
+
+/* App-like mobile refinements */
+html { scroll-behavior:smooth; }
+button, a { -webkit-tap-highlight-color: transparent; }
+@media (max-width: 767px) {
+  .fr-mobile-card { border-radius:1.5rem; }
+  input, select, textarea { font-size:16px; }
+}
+@keyframes fr-pulse-soft { 0%,100%{box-shadow:0 0 0 0 rgba(126,34,206,.15)} 50%{box-shadow:0 0 0 10px rgba(126,34,206,0)} }
+.fr-live { animation:fr-pulse-soft 2.2s ease-in-out infinite; }
+
+/* Android / mobile WebView stability */
+@media (max-width: 767px) {
+  .fr-step,
+  .fr-reveal {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .fr-choice {
+    transition: none !important;
+  }
+
+  .fr-choice:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .fr-glass {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(255,255,255,.96);
+  }
+}

@@ -14,11 +14,21 @@ export default function AdminDashboardPage() {
 
   const cards = [
     {
+      href: '/admin/marketplace',
+      emoji: '🚕',
+      title: 'Driver–Rider Operations',
+      description:
+        'Monitor ride requests, driver offers, fare negotiations, payments, active trips, driver wallets, cashouts and disputes.',
+      button: 'Open Operations',
+      color: 'bg-green-600',
+      featured: true,
+    },
+    {
       href: '/admin/bookings',
       emoji: '📅',
-      title: 'Bookings',
+      title: 'Car Hire Bookings',
       description:
-        'Review pending requests, confirm hires, reject bookings and manage rental operations.',
+        'Review traditional car-hire requests, confirm hires, reject bookings and manage rental operations.',
       button: 'Manage Bookings',
       color: 'bg-purple-700',
     },
@@ -34,9 +44,9 @@ export default function AdminDashboardPage() {
     {
       href: '/admin/chat',
       emoji: '💬',
-      title: 'Live Chat',
+      title: 'Customer Support',
       description:
-        'Respond to customer enquiries in real time with FAQ replies and WhatsApp escalation.',
+        'Respond to customer enquiries and manage support conversations and escalations.',
       button: 'Open Inbox',
       color: 'bg-green-600',
     },
@@ -45,7 +55,7 @@ export default function AdminDashboardPage() {
       emoji: '🤝',
       title: 'Owner Applications',
       description:
-        'Review partner vehicle submissions, route pricing and approve hidden listings.',
+        'Review vehicle-owner applications and manage partner vehicle onboarding.',
       button: 'Review Applications',
       color: 'bg-purple-700',
     },
@@ -54,7 +64,7 @@ export default function AdminDashboardPage() {
       emoji: '🛣️',
       title: 'Routes & Pricing',
       description:
-        'Manage city-to-city routes, package types and WhatsApp pricing requests.',
+        'Manage city-to-city routes, package types and route pricing.',
       button: 'Manage Routes',
       color: 'bg-purple-700',
     },
@@ -63,7 +73,7 @@ export default function AdminDashboardPage() {
       emoji: '🖼️',
       title: 'Homepage Editor',
       description:
-        'Update homepage content, hero sections, WhatsApp text and branding.',
+        'Update homepage content, hero sections, support text and branding.',
       button: 'Edit Website',
       color: 'bg-purple-700',
     },
@@ -72,7 +82,7 @@ export default function AdminDashboardPage() {
       emoji: '🌍',
       title: 'Public Website',
       description:
-        'Open the live customer-facing Fountain Ride website.',
+        'Open the customer-facing Fountain Ride website.',
       button: 'View Website',
       color: 'bg-gray-900',
     },
@@ -93,8 +103,9 @@ export default function AdminDashboardPage() {
               </h1>
 
               <p className="text-gray-600 mt-3 max-w-3xl">
-                Manage bookings, customer conversations, partner vehicle listings,
-                routes, pricing and daily operations from one dashboard.
+                Control Fountain Ride marketplace operations, car hire,
+                drivers, payments, cashouts, customer support and fleet
+                management from one dashboard.
               </p>
             </div>
 
@@ -108,15 +119,35 @@ export default function AdminDashboardPage() {
 
           <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {cards.map((card) => (
-              <Link key={card.title} href={card.href}>
-                <div className="bg-white rounded-[2rem] shadow-sm border p-6 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer h-full flex flex-col">
+              <Link
+                key={card.title}
+                href={card.href}
+                className={card.featured ? 'sm:col-span-2 xl:col-span-2' : ''}
+              >
+                <div
+                  className={`rounded-[2rem] border p-6 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer h-full flex flex-col ${
+                    card.featured
+                      ? 'bg-gray-950 text-white border-gray-950'
+                      : 'bg-white shadow-sm'
+                  }`}
+                >
                   <div className="text-5xl mb-5">{card.emoji}</div>
+
+                  {card.featured && (
+                    <p className="text-xs font-black tracking-wider text-purple-300 mb-2">
+                      LIVE MARKETPLACE
+                    </p>
+                  )}
 
                   <h2 className="text-2xl font-black">
                     {card.title}
                   </h2>
 
-                  <p className="text-gray-600 mt-3 leading-relaxed flex-1">
+                  <p
+                    className={`mt-3 leading-relaxed flex-1 ${
+                      card.featured ? 'text-gray-300' : 'text-gray-600'
+                    }`}
+                  >
                     {card.description}
                   </p>
 

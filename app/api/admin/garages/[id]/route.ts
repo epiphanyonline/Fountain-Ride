@@ -1,0 +1,4 @@
+import {NextResponse} from 'next/server'
+import {isAdminSession} from '../../../../../lib/server/adminSession'
+import {getSupabaseAdmin} from '../../../../../lib/server/supabaseAdmin'
+export async function PATCH(req:Request,{params}:{params:Promise<{id:string}>}){if(!await isAdminSession())return NextResponse.json({error:'Unauthorized'},{status:401});const {id}=await params;const b=await req.json().catch(()=>null);const status=String(b?.status||'');if(!['verified','rejected','suspended'].includes(status))return NextResponse.json({error:'Invalid status'},{status:400});const db=getSupabaseAdmin();const {error}=await db.from('registered_parks').update({verification_status:status}).eq('id',id);if(error)return NextResponse.json({error:error.message},{status:500});return NextResponse.json({ok:true})}
