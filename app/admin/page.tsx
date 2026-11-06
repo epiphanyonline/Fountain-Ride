@@ -21,10 +21,21 @@ export default function AdminDashboardPage() {
         'Monitor ride requests, driver offers, fare negotiations, payments, active trips, driver wallets, cashouts and disputes.',
       button: 'Open Operations',
       color: 'bg-green-600',
+      
       featured: true,
     },
     {
+      href: '/admin/vehicle-hire',
+      emoji: '\u{1F697}',
+      title: 'Vehicle Hire Requests',
+      description:
+        'Monitor vehicle hire requests, review quotations, manage customer bookings and track payment status.',
+      button: 'Manage Vehicle Hires',
+      color: 'bg-purple-700',
+    },
+    {
       href: '/admin/bookings',
+
       emoji: '📅',
       title: 'Car Hire Bookings',
       description:
