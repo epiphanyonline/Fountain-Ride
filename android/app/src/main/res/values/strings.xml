@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Fountain Ride</string>
+    <string name="title_activity_main">Fountain Ride</string>
+    <string name="package_name">com.fountainride.app</string>
+    <string name="custom_url_scheme">com.fountainride.app</string>
+</resources>
