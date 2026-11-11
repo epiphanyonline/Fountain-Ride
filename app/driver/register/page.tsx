@@ -49,6 +49,59 @@ const hireJobs = [
 ]
 
 export default function DriverRegister() {
+  const [wizardStep, setWizardStep] = useState(1)
+  const [reviewDetails, setReviewDetails] = useState<Record<string, string>>({})
+
+  function nextWizardStep() {
+    const currentSection = document.querySelector(
+      `[data-wizard-step="${wizardStep}"]`
+    )
+
+    if (currentSection) {
+      const fields = currentSection.querySelectorAll<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >('input, select, textarea')
+
+      for (const field of fields) {
+        if (!field.checkValidity()) {
+          field.reportValidity()
+          field.focus()
+          return
+        }
+      }
+    }
+
+    if (wizardStep === 3) {
+      const form = document.querySelector<HTMLFormElement>(
+        'form[data-driver-registration]'
+      )
+
+      if (form) {
+        const fd = new FormData(form)
+        setReviewDetails({
+          name: String(fd.get('name') || ''),
+          phone: String(fd.get('phone') || ''),
+          email: String(fd.get('email') || ''),
+          city: String(fd.get('city') || ''),
+          experience: String(fd.get('experience') || ''),
+          make: String(fd.get('make') || ''),
+          model: String(fd.get('model') || ''),
+          year: String(fd.get('year') || ''),
+          plate: String(fd.get('plate') || ''),
+          park: String(fd.get('park') || ''),
+        })
+      }
+    }
+
+    setErr('')
+    setWizardStep((current) => Math.min(current + 1, 4))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function previousWizardStep() {
+    setWizardStep((current) => Math.max(current - 1, 1))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
   const router = useRouter()
 
   const [workMode, setWorkMode] =
@@ -114,6 +167,27 @@ export default function DriverRegister() {
     e: FormEvent<HTMLFormElement>
   ) {
     e.preventDefault()
+
+    if (wizardStep !== 4) {
+      return
+    }
+
+    const form = e.currentTarget
+    const requiredFields = form.querySelectorAll<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >('input[required], select[required], textarea[required]')
+
+    for (const field of requiredFields) {
+      if (!field.checkValidity()) {
+        const parentStep = field.closest<HTMLElement>('[data-wizard-step]')
+        const targetStep = Number(parentStep?.dataset.wizardStep || 2)
+
+        setWizardStep(targetStep)
+        setErr('Please complete the required information before submitting.')
+        return
+      }
+    }
+
     setBusy(true)
     setErr('')
 
@@ -217,7 +291,42 @@ export default function DriverRegister() {
       <MarketplaceNav />
 
       <main className="min-h-screen bg-[radial-gradient(circle_at_top,#efe4ff,#f8f5fb_45%)] p-5 py-10">
+        <div className="mx-auto mb-5 max-w-3xl rounded-2xl border border-purple-100 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-black text-gray-900">
+              Driver registration
+            </p>
+            <p className="text-xs font-bold text-purple-700">
+              Step {wizardStep} of 4
+            </p>
+          </div>
+
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {[1, 2, 3, 4].map((number) => (
+              <div
+                key={number}
+                className={`h-2 rounded-full ${
+                  number <= wizardStep
+                    ? 'bg-purple-700'
+                    : 'bg-purple-100'
+                }`}
+              />
+            ))}
+          </div>
+
+          <p className="mt-3 text-sm text-gray-600">
+            {[
+              'Choose how you want to earn',
+              'Tell us about yourself',
+              'Driving and vehicle details',
+              'Review and continue',
+            ][wizardStep - 1]}
+          </p>
+        </div>
+
         <form
+          data-driver-registration
+          noValidate
           onSubmit={submit}
           className="max-w-5xl mx-auto"
         >
@@ -250,7 +359,7 @@ export default function DriverRegister() {
 
             {/* WORK MODE */}
 
-            <section className="mt-9">
+            <section data-wizard-step="1" className={wizardStep === 1 ? "mt-9" : "hidden"}>
               <p className="font-black text-lg">
                 How do you want to earn?
               </p>
@@ -341,7 +450,7 @@ export default function DriverRegister() {
 
             {/* PERSONAL INFORMATION */}
 
-            <section className="mt-10">
+            <section data-wizard-step="2" className={wizardStep === 2 ? "mt-10" : "hidden"}>
               <h2 className="text-2xl font-black">
                 About you
               </h2>
@@ -421,7 +530,7 @@ export default function DriverRegister() {
             {/* DRIVER HIRE */}
 
             {wantsDriverHire && (
-              <section className="mt-10 border-t pt-9">
+              <section data-wizard-step="3" className={wizardStep === 3 ? "mt-10 border-t pt-9" : "hidden"}>
                 <p className="text-purple-700 font-black">
                   Driver Hire
                 </p>
@@ -552,7 +661,7 @@ export default function DriverRegister() {
             {/* PASSENGER TRIPS */}
 
             {wantsPassengerTrips && (
-              <section className="mt-10 border-t pt-9">
+              <section data-wizard-step="3" className={wizardStep === 3 ? "mt-10 border-t pt-9" : "hidden"}>
                 <p className="text-purple-700 font-black">
                   Passenger Trips
                 </p>
@@ -747,20 +856,88 @@ export default function DriverRegister() {
               </section>
             )}
 
+            {wizardStep === 4 && (
+              <section className="mt-8 rounded-3xl border border-purple-100 bg-white p-5 sm:p-7">
+                <p className="text-xs font-black uppercase tracking-widest text-purple-700">
+                  Final step
+                </p>
+                <h2 className="mt-2 text-2xl font-black text-gray-950">
+                  Review your application
+                </h2>
+                <p className="mt-2 text-sm text-gray-600">
+                  Check your information before continuing to secure account setup.
+                </p>
+
+                <div className="mt-6 space-y-3">
+                  {[
+                    ['Service', workMode === 'driver_hire' ? 'Driver Hire' : workMode === 'both' ? 'Driver Hire and Passenger Trips' : 'Passenger Trips'],
+                    ['Full name', reviewDetails.name],
+                    ['Mobile number', reviewDetails.phone],
+                    ['Email', reviewDetails.email || 'Not provided'],
+                    ['Location', [reviewDetails.city, state].filter(Boolean).join(', ')],
+                    ...(wantsDriverHire ? [
+                      ['Driving experience', `${reviewDetails.experience} years`],
+                      ['Transmission', [automatic && 'Automatic', manual && 'Manual'].filter(Boolean).join(', ')],
+                      ['Preferred jobs', selectedHireJobs.join(', ')],
+                    ] : []),
+                    ...(wantsPassengerTrips ? [
+                      ['Vehicle', [reviewDetails.make, reviewDetails.model, reviewDetails.year].filter(Boolean).join(' ')],
+                      ['Registration number', reviewDetails.plate],
+                      ['Driver category', type === 'commercial' ? 'Commercial / park driver' : 'Private driver'],
+                      ...(type === 'commercial' ? [
+                        ['Mobile Garage', newPark ? reviewDetails.park : garages.find(g => g.id === parkId)?.name || 'Not selected'],
+                      ] : []),
+                    ] : []),
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex flex-col gap-1 border-b border-gray-100 pb-3 sm:flex-row sm:justify-between sm:gap-5">
+                      <span className="text-sm text-gray-500">{label}</span>
+                      <span className="text-sm font-bold text-gray-950 sm:text-right">{value || 'Not provided'}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="mt-5 text-xs text-gray-500">
+                  Select Back to correct any details. Your application will be submitted only when you choose Continue to secure account.
+                </p>
+              </section>
+            )}
             {err && (
               <p className="text-red-600 mt-6 text-sm font-bold">
                 {err}
               </p>
             )}
 
-            <button
-              disabled={busy}
-              className="mt-8 bg-purple-700 text-white px-7 py-4 rounded-2xl font-black disabled:opacity-50"
-            >
-              {busy
-                ? 'Creating account setup…'
-                : 'Continue to secure account →'}
-            </button>
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+              {wizardStep > 1 ? (
+                <button
+                  type="button"
+                  onClick={previousWizardStep}
+                  className="rounded-2xl border border-gray-200 bg-white px-6 py-4 font-black text-gray-800"
+                >
+                  Back
+                </button>
+              ) : (
+                <span />
+              )}
+
+              {wizardStep < 4 ? (
+                <button
+                  type="button"
+                  onClick={nextWizardStep}
+                  className="rounded-2xl bg-purple-700 px-7 py-4 font-black text-white"
+                >
+                  Continue
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="rounded-2xl bg-purple-700 px-7 py-4 font-black text-white disabled:opacity-50"
+                >
+                  {busy ? 'Creating account setup…' : 'Continue to secure account →'}
+                </button>
+              )}
+            </div>
 
             <p className="text-sm mt-4">
               Already registered?{' '}
