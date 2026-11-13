@@ -9,7 +9,8 @@
     "lint": "eslint",
     "cap:add:android": "npx cap add android",
     "cap:sync": "npx cap sync android",
-    "cap:open:android": "npx cap open android"
+    "cap:open:android": "npx cap open android",
+    "mobile:check": "node scripts/check-mobile-release.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.3",
