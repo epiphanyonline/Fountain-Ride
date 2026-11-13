@@ -118,11 +118,11 @@ export async function GET() {
    * Connect accepted offers to their drivers.
    *
    * ride.accepted_offer_id
-   *        â†“
+   *        ↓
    * ride_offers.id
-   *        â†“
+   *        ↓
    * driver_application_id
-   *        â†“
+   *        ↓
    * driver_applications
    */
   const acceptedOfferIds = (rides.data || [])

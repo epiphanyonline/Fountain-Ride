@@ -422,7 +422,7 @@ async function verifyPayment(
   setPaymentVerifying(true)
   setPaymentError('')
   setPaymentMessage(
-    'Confirming your paymentÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦'
+    'Confirming your payment...'
   )
 
   try {
@@ -1006,7 +1006,7 @@ async function sendChatMessage() {
             <div className="bg-white border rounded-[2rem] p-8">
               <p className="font-black">
                 Loading your Driver Hire
-                requestÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦
+                request...
               </p>
             </div>
           </div>
@@ -1086,7 +1086,7 @@ async function sendChatMessage() {
                 {words(
                   hireRequest.driver_need_type
                 )}{' '}
-                ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â·{' '}
+                 -{' '}
                 {words(
                   hireRequest.job_type
                 )}
@@ -1179,7 +1179,7 @@ async function sendChatMessage() {
       <div className="mt-5 bg-white/70 border border-green-200 rounded-2xl p-4">
         <div className="flex items-start gap-3">
           <span className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white font-black">
-            ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ
+            &#10003;
           </span>
 
           <div>
@@ -1327,7 +1327,7 @@ hireRequest.job_start_pin &&
                       <p className="font-black mt-1">
                         {hireRequest.estimated_min_hours ??
                           '?'}
-                        {' ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ '}
+                        {' - '}
                         {hireRequest.estimated_max_hours ??
                           '?'}{' '}
                         hours
@@ -1505,7 +1505,7 @@ hireRequest.job_start_pin &&
                     value={
                       hireRequest.waiting_expected
                         ? hireRequest.estimated_waiting_hours
-                          ? `Yes ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· approx. ${hireRequest.estimated_waiting_hours} hours`
+                          ? `Yes - approx. ${hireRequest.estimated_waiting_hours} hours`
                           : 'Yes'
                         : 'No'
                     }
@@ -1690,7 +1690,7 @@ hireRequest.job_start_pin &&
     <div className="p-5">
       {chatLoading ? (
         <p className="text-sm text-gray-500">
-          Loading conversationÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦
+          Loading conversation...
         </p>
       ) : chatMessages.length === 0 ? (
         <div className="py-7 text-center">
@@ -1776,7 +1776,7 @@ hireRequest.job_start_pin &&
           }
           maxLength={2000}
           rows={3}
-          placeholder="Message the driverÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦"
+          placeholder="Message the driver..."
           className="w-full border rounded-2xl p-4 text-sm outline-none focus:border-purple-600 resize-none"
         />
 
@@ -1807,7 +1807,7 @@ hireRequest.job_start_pin &&
             className="bg-purple-700 text-white rounded-xl px-5 py-3 text-sm font-black disabled:opacity-50"
           >
             {chatSending
-              ? 'SendingÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦'
+              ? 'Sending...'
               : 'Send message'}
           </button>
         </div>
@@ -2072,7 +2072,7 @@ hireRequest.job_start_pin &&
       <div className="p-6 max-h-[65vh] overflow-y-auto">
         <div className="bg-purple-50 rounded-2xl p-5">
           <p className="text-xs font-black text-purple-700">
-            QUOTATION ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· VERSION{' '}
+            QUOTATION - VERSION{' '}
             {acceptOffer.version_number}
           </p>
 
@@ -2211,7 +2211,7 @@ hireRequest.job_start_pin &&
           className="bg-purple-700 text-white rounded-xl py-3 font-black disabled:opacity-50"
         >
           {acceptingOffer
-            ? 'AcceptingÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦'
+            ? 'Accepting...'
             : 'Confirm & Accept Quotation'}
         </button>
       </div>
@@ -2391,7 +2391,7 @@ function OfferCard({
         <div className="mt-5 rounded-2xl border border-purple-200 bg-purple-50 p-4">
           <div className="flex items-center justify-between gap-3">
             <p className="font-black text-purple-900 text-sm">
-              ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢Ãƒâ€šÃ‚Â¬ New message from{' '}
+              New message from{' '}
               {offer.driver?.full_name ||
                 'driver'}
             </p>
@@ -2404,12 +2404,12 @@ function OfferCard({
 
           {offer.latest_driver_message?.body && (
             <p className="text-sm text-purple-900/80 mt-2 line-clamp-2">
-              ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“
+              &ldquo;
               {
                 offer.latest_driver_message
                   .body
               }
-              ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â
+              &rdquo;
             </p>
           )}
         </div>
@@ -2538,7 +2538,7 @@ function OfferCard({
     <div className="mt-5 bg-green-50 border border-green-200 rounded-2xl p-4">
       <div className="flex items-center gap-2">
         <span className="flex items-center justify-center w-7 h-7 rounded-full bg-green-600 text-white text-sm font-black">
-          ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ
+          &#10003;
         </span>
 
         <div>

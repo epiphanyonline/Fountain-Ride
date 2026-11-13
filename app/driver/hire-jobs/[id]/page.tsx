@@ -123,10 +123,10 @@ function money(value?: number | null) {
     value === undefined ||
     Number.isNaN(Number(value))
   ) {
-    return 'â€”'
+    return '—'
   }
 
-  return `â‚¦${Number(value).toLocaleString('en-NG')}`
+  return `₦${Number(value).toLocaleString('en-NG')}`
 }
 
 function formatDate(value?: string | null) {
@@ -862,7 +862,7 @@ export default function DriverHireJobPage() {
             }
             className="mb-5 text-sm font-semibold text-purple-700"
           >
-            â† Back to Driver Centre
+            &larr; Back to Driver Centre
           </button>
 
           <div className="rounded-3xl border border-red-200 bg-white p-8">
@@ -930,7 +930,7 @@ export default function DriverHireJobPage() {
           </div>
 
           <div className="mt-2 text-sm text-purple-100">
-            {job.booking_ref} Â·{' '}
+            {job.booking_ref} ·{' '}
             {label(job.job_type)}
           </div>
 
@@ -964,7 +964,7 @@ export default function DriverHireJobPage() {
               title="Start"
               value={`${formatDate(
                 job.start_date
-              )} Â· ${shortTime(
+              )} · ${shortTime(
                 job.start_time
               )}`}
             />
@@ -989,7 +989,7 @@ export default function DriverHireJobPage() {
                             job.end_date
                           )
                         : 'Same/next day'
-                    } Â· ${shortTime(
+                    } · ${shortTime(
                       job.end_time
                     )}`
               }
@@ -1078,7 +1078,7 @@ export default function DriverHireJobPage() {
                   : null,
               ]
                 .filter(Boolean)
-                .join(' Â· ')}
+                .join(' · ')}
             />
 
             <Info
@@ -1104,7 +1104,7 @@ export default function DriverHireJobPage() {
               value={
                 job.waiting_expected
                   ? job.estimated_waiting_hours
-                    ? `Yes Â· approx. ${job.estimated_waiting_hours} hours`
+                    ? `Yes · approx. ${job.estimated_waiting_hours} hours`
                     : 'Yes'
                   : 'No'
               }
@@ -1183,7 +1183,7 @@ export default function DriverHireJobPage() {
                 {job.agreed_fare !== null &&
                   job.agreed_fare !== undefined && (
                     <p className="mt-2 text-sm text-purple-100">
-                      Agreed fare Â· {money(job.agreed_fare)}
+                      Agreed fare · {money(job.agreed_fare)}
                     </p>
                   )}
               </div>
@@ -1262,7 +1262,7 @@ export default function DriverHireJobPage() {
                                 .slice(0, 4)
                             )
                           }
-                          placeholder="â€¢â€¢â€¢â€¢"
+                          placeholder="••••"
                           className="mt-3 w-full rounded-2xl border border-slate-300 px-4 py-4 text-center text-3xl font-bold tracking-[0.5em] outline-none focus:border-purple-600"
                         />
                       </label>
@@ -1570,7 +1570,7 @@ export default function DriverHireJobPage() {
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Quotation {money(existingOffer.amount)} Â· Version{' '}
+                  Quotation {money(existingOffer.amount)} · Version{' '}
                   {existingOffer.version_number}
                 </p>
               </div>
@@ -1722,7 +1722,7 @@ export default function DriverHireJobPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className="text-sm font-semibold text-slate-800">
-                  Base quotation (â‚¦) *
+                  Base quotation (₦) *
                 </span>
 
                 <input
@@ -1763,7 +1763,7 @@ export default function DriverHireJobPage() {
 
               <label className="block">
                 <span className="text-sm font-semibold text-slate-800">
-                  Overtime rate (â‚¦ / hour)
+                  Overtime rate (₦ / hour)
                 </span>
 
                 <input
@@ -1783,7 +1783,7 @@ export default function DriverHireJobPage() {
 
               <label className="block">
                 <span className="text-sm font-semibold text-slate-800">
-                  Additional charges (â‚¦)
+                  Additional charges (₦)
                 </span>
 
                 <input
@@ -1992,10 +1992,10 @@ export default function DriverHireJobPage() {
               {submitting
                 ? 'Submitting...'
                 : existingOffer
-                  ? `Update Quotation Â· ${money(
+                  ? `Update Quotation · ${money(
                       totalAmount
                     )}`
-                  : `Submit Quotation Â· ${money(
+                  : `Submit Quotation · ${money(
                       totalAmount
                     )}`}
             </button>
