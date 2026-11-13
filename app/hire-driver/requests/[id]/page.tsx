@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import MarketplaceNav from '../../../components/MarketplaceNav'
+import DriverHireBankTransferPanel from './DriverHireBankTransferPanel'
 
 type Driver = {
   id: string
@@ -155,32 +156,31 @@ function words(value?: string | null) {
     )
 }
 
+
 function money(
   value?: number | null,
   currency = 'NGN'
 ) {
   if (
     value === null ||
-    value === undefined
+    value === undefined ||
+    !Number.isFinite(Number(value))
   ) {
-    return 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'
+    return '-'
   }
 
   try {
-    return new Intl.NumberFormat(
-      'en-NG',
-      {
-        style: 'currency',
-        currency,
-        maximumFractionDigits: 0,
-      }
-    ).format(Number(value))
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(Number(value))
   } catch {
-    return `ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¦${Number(
-      value
-    ).toLocaleString()}`
+    return `${currency} ${Number(value).toLocaleString('en-NG')}`
   }
 }
+
 
 function formatDate(value?: string | null) {
   if (!value) return 'Not specified'
@@ -1168,58 +1168,11 @@ async function sendChatMessage() {
       </b>
     </p>
 
-    {hireRequest.status ===
-      'awaiting_payment' && (
-      <>
-        <div className="mt-5 bg-white/70 border border-amber-200 rounded-2xl p-4">
-          <p className="font-black">
-            Payment required
-          </p>
-
-          <p className="text-sm text-gray-600 mt-1">
-            Pay securely through Fountain
-            Ride to confirm this booking and
-            activate Payment Protection.
-          </p>
-        </div>
-
-        {paymentError && (
-          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm">
-            {paymentError}
-          </div>
-        )}
-
-        {paymentMessage && (
-          <div className="mt-4 bg-purple-50 border border-purple-200 text-purple-800 rounded-xl p-4 text-sm font-bold">
-            {paymentMessage}
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={startPayment}
-          disabled={
-            paymentLoading ||
-            paymentVerifying
-          }
-          className="w-full sm:w-auto mt-5 bg-purple-700 hover:bg-purple-800 text-white px-7 py-4 rounded-2xl font-black disabled:opacity-50"
-        >
-          {paymentLoading
-            ? 'Opening secure paymentÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦'
-            : paymentVerifying
-              ? 'Confirming paymentÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦'
-              : `Proceed to Payment ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ${money(
-                  agreement.agreed_amount,
-                  hireRequest.currency
-                )}`}
-        </button>
-
-        <p className="text-xs text-gray-500 mt-3">
-          You will be redirected to
-          Paystack's secure checkout.
-        </p>
-      </>
-    )}
+    {hireRequest.status === 'awaiting_payment' && (
+  <DriverHireBankTransferPanel
+    requestId={String(id ?? '')}
+  />
+)}
 
     {hireRequest.status ===
       'confirmed' && (

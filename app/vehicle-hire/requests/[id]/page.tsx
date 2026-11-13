@@ -13,6 +13,10 @@ import { useParams, useRouter } from 'next/navigation'
 import MarketplaceNav from '../../../components/MarketplaceNav'
 
 
+import BankTransferPaymentPanel from './BankTransferPaymentPanel'
+
+
+
 
 type Vehicle = {
 
@@ -2306,111 +2310,15 @@ export default function VehicleHireRequestPage() {
 
 
 
-              {hireRequest.status === 'awaiting_payment' && (
+              
+{hireRequest.status === 'awaiting_payment' && (
+  <BankTransferPaymentPanel
+    requestId={String(id ?? '')}
+    agreedAmount={Number(agreement.agreed_amount)}
+    currency={hireRequest.currency || 'NGN'}
+  />
+)}
 
-
-
-                <div className="mt-5 bg-white border border-amber-200 rounded-2xl p-4">
-
-
-
-                  <p className="font-black">
-
-
-
-                    Next step: secure payment
-
-
-
-                  </p>
-
-
-
-                  <p className="text-sm text-gray-600 mt-2 leading-6">
-
-
-
-                    Your quotation is now locked. Payment will be completed
-
-
-
-                    securely on Fountain Ride to confirm the booking.
-
-
-
-                  </p>
-
-
-
-                  {paymentMessage && (
-
-                    <div className="mt-4 bg-green-50 border border-green-200 text-green-800 rounded-xl p-3 text-sm font-semibold">
-
-                      {paymentMessage}
-
-                    </div>
-
-                  )}
-
-
-
-                  {paymentError && (
-
-                    <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 text-sm font-semibold">
-
-                      {paymentError}
-
-                    </div>
-
-                  )}
-
-
-
-                  <button
-
-                    type="button"
-
-                    onClick={startPayment}
-
-                    disabled={startingPayment || verifyingPayment}
-
-                    className="mt-4 w-full bg-purple-700 hover:bg-purple-800 text-white px-5 py-3 rounded-xl font-black disabled:opacity-50 disabled:cursor-not-allowed"
-
-                  >
-
-                    {verifyingPayment
-
-                      ? 'Confirming payment...'
-
-                      : startingPayment
-
-                        ? 'Opening secure payment...'
-
-                        : `Proceed to Payment — ${money(
-
-                            agreement.agreed_amount,
-
-                            hireRequest.currency
-
-                          )}`}
-
-                  </button>
-
-
-
-                  <p className="text-xs text-gray-500 mt-3 text-center">
-
-                    Secure checkout powered by Paystack.
-
-                  </p>
-
-
-
-                </div>
-
-
-
-              )}
 
 
 

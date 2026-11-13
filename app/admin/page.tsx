@@ -13,6 +13,34 @@ export default function AdminDashboardPage() {
   }
 
   const cards = [
+
+    {
+      href: '/admin/driver-hire',
+      emoji: '\u{1F464}',
+      title: 'Driver Hire Operations',
+      description:
+        'Monitor driver requests, quotations, accepted offers, payments, booking progress, commissions and earnings.',
+      button: 'Manage Driver Hire',
+    },
+
+
+    {
+      href: '/admin/driver-hire/bank-transfers',
+      emoji: '\u{1F4B3}',
+      title: 'Driver Hire Payments',
+      description:
+        'Review reported bank transfers, verify received payments, and confirm Driver Hire bookings.',
+      button: 'Verify Driver Payments',
+    },
+    {
+      href: '/admin/vehicle-hire/bank-transfers',
+      emoji: '\u{1F3E6}',
+      title: 'Vehicle Hire Payments',
+      description:
+        'Review customer bank transfers, verify actual credits, and confirm Vehicle Hire bookings.',
+      button: 'Verify Vehicle Payments',
+    },
+
     {
       href: '/admin/marketplace',
       emoji: '🚕',
