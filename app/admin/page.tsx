@@ -13,6 +13,15 @@ export default function AdminDashboardPage() {
   }
 
   const cards = [
+    {
+      href: '/admin/drivers',
+      emoji: '📞',
+      title: 'Registered Drivers & Contacts',
+      description:
+        'Search all registered drivers, check account and approval status, and contact them by phone, WhatsApp or email.',
+      button: 'Open Driver Directory',
+      color: 'bg-purple-700',
+    },
 
     {
       href: '/admin/driver-hire',

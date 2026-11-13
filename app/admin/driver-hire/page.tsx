@@ -263,14 +263,14 @@ export default function DriverHireOperationsPage() {
             </Link>
 
             <Link
-              href="/admin/marketplace"
+              href="/admin/drivers"
               className="rounded-2xl border bg-white p-4 hover:border-purple-400"
             >
               <p className="font-black text-purple-800">
-                Driver Management
+                Registered Drivers & Contacts
               </p>
               <p className="mt-1 text-xs text-gray-600">
-                Driver profiles and approvals
+                Search profiles, status, phone and WhatsApp
               </p>
             </Link>
 
