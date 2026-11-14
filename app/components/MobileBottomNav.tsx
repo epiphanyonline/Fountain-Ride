@@ -27,9 +27,23 @@ export default function MobileBottomNav() {
   const [driverTrip, setDriverTrip] = useState(false)
 
   const [driverHost, setDriverHost] = useState(false)
+  const [riderAppSession, setRiderAppSession] = useState(false)
 
   useEffect(() => {
     setDriverHost(window.location.hostname.toLowerCase() === 'drivers.fountainride.com')
+  }, [pathname])
+
+  useEffect(() => {
+    // Android Rider launches at /app. Keep Home inside that app experience
+    // while preserving the existing public marketing homepage at /.
+    try {
+      setRiderAppSession(
+        pathname === '/app' ||
+        window.sessionStorage.getItem('fountain_rider_app_session') === '1'
+      )
+    } catch {
+      setRiderAppSession(pathname === '/app')
+    }
   }, [pathname])
 
   useEffect(() => {
@@ -41,12 +55,15 @@ export default function MobileBottomNav() {
 
   const driverPage = driverHost || isDriverPage(pathname) || driverTrip
   const items = driverPage ? driverItems : riderItems
+  const navItems = driverPage || !riderAppSession
+    ? items
+    : items.map((item) => item.href === '/' ? { ...item, href: '/app' } : item)
 
   return (
     <nav aria-label={driverPage ? 'Driver navigation' : 'Customer navigation'}
       className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t bg-white/95 backdrop-blur px-2 py-2 pb-[max(.5rem,env(safe-area-inset-bottom))]">
       <div className="grid grid-cols-4 gap-1">
-        {items.map((item) => {
+        {navItems.map((item) => {
           const active =
             pathname === item.href ||
             (item.href !== '/' && item.href !== '/driver' &&

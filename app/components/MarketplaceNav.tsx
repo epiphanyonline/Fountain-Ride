@@ -40,9 +40,21 @@ export default function MarketplaceNav() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const [driverHost, setDriverHost] = useState(false)
+  const [riderAppSession, setRiderAppSession] = useState(false)
 
   useEffect(() => {
     setDriverHost(window.location.hostname.toLowerCase() === 'drivers.fountainride.com')
+  }, [pathname])
+
+  useEffect(() => {
+    try {
+      setRiderAppSession(
+        pathname === '/app' ||
+        window.sessionStorage.getItem('fountain_rider_app_session') === '1'
+      )
+    } catch {
+      setRiderAppSession(pathname === '/app')
+    }
   }, [pathname])
 
   useEffect(() => {
@@ -97,6 +109,9 @@ export default function MarketplaceNav() {
     : account === 'rider'
       ? customerAccountLinks
       : customerLinks
+  const visibleLinks = driverSurface || !riderAppSession
+    ? links
+    : links.map((item) => item.href === '/' ? { ...item, href: '/app' } : item)
 
   const active = (href: string) =>
     href === '/' || href === '/driver'
@@ -111,7 +126,7 @@ export default function MarketplaceNav() {
 
   const loginUrl = driverSurface ? '/driver/login' : '/rider/login'
   const loginLabel = driverSurface ? 'Driver Sign In' : 'Customer Sign In'
-  const headingUrl = driverSurface ? '/driver' : '/'
+  const headingUrl = driverSurface ? '/driver' : riderAppSession ? '/app' : '/'
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
@@ -126,7 +141,7 @@ export default function MarketplaceNav() {
         </Link>
 
         <nav aria-label="Main navigation" className="hidden flex-wrap items-center justify-end gap-1 lg:flex">
-          {links.map((item) => (
+          {visibleLinks.map((item) => (
             <Link key={item.href} href={item.href} className={linkClass(item.href)}>
               {item.label}
             </Link>
@@ -158,7 +173,7 @@ export default function MarketplaceNav() {
         <nav id="fountain-mobile-menu" aria-label="Mobile navigation"
           className="border-t border-slate-200 bg-white px-5 pb-5 pt-3 lg:hidden">
           <div className="mx-auto flex max-w-7xl flex-col gap-1">
-            {links.map((item) => (
+            {visibleLinks.map((item) => (
               <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
                 className={linkClass(item.href)}>
                 {item.label}
