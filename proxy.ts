@@ -48,6 +48,7 @@ export function proxy(request: NextRequest) {
 
   // Customer-facing pages live on the flagship Fountain Ride website.
   const customerPages = [
+    '/app',
     '/rider',
     '/hire-driver',
     '/cars',
