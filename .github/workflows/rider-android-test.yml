@@ -36,7 +36,9 @@ jobs:
           node-version: '22'
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
 
       - name: Validate Android test identity
         run: |
