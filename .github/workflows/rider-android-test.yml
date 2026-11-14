@@ -1,0 +1,74 @@
+name: Rider Android test APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - mobile/rider-android-debug-build-20261114
+    paths:
+      - '.github/workflows/rider-android-test.yml'
+      - 'mobile/rider-android-test/**'
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout Rider app source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Validate Android test identity
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const m = JSON.parse(fs.readFileSync('mobile/rider-android-test/twa-manifest.json', 'utf8'));
+          if (m.packageId !== 'com.fountainride.rider.test' ||
+              m.host !== 'fountainride.com' ||
+              m.startUrl !== '/app' ||
+              m.webManifestUrl !== 'https://fountainride.com/rider-app-manifest.json') {
+            throw new Error('Android test manifest does not match Rider app identity');
+          }
+          console.log('Rider test identity validated');
+          NODE
+
+      - name: Install Bubblewrap
+        run: npm install --global @bubblewrap/cli
+
+      - name: Point Bubblewrap at Java and Android SDK
+        run: bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
+
+      - name: Generate Android project from test manifest
+        working-directory: mobile/rider-android-test
+        run: bubblewrap update --skipVersionUpgrade
+
+      - name: Build locally signed debug APK
+        working-directory: mobile/rider-android-test
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+          find . -path '*/build/outputs/apk/debug/*.apk' -type f -print
+
+      - name: Upload Android test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: fountain-ride-rider-debug-apk
+          path: mobile/rider-android-test/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
