@@ -2,6 +2,10 @@ name: Rider Android test APK
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/rider-android-test.yml'
+      - 'mobile/rider-android-test/**'
   push:
     branches:
       - mobile/rider-android-debug-build-20261114
