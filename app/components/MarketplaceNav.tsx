@@ -39,6 +39,12 @@ export default function MarketplaceNav() {
   const [driverTrip, setDriverTrip] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const [driverHost, setDriverHost] = useState(false)
+
+  useEffect(() => {
+    setDriverHost(window.location.hostname.toLowerCase() === 'drivers.fountainride.com')
+  }, [pathname])
+
   useEffect(() => {
     setDriverTrip(
       pathname.startsWith('/trips/') &&
@@ -47,6 +53,7 @@ export default function MarketplaceNav() {
   }, [pathname])
 
   const driverSurface =
+    driverHost ||
     pathname === '/driver' ||
     pathname.startsWith('/driver/') ||
     driverTrip
