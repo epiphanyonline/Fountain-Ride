@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-labelledby="title">
+  <title id="title">Fountain Ride Driver</title>
+  <defs>
+    <linearGradient id="driver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#221044"/>
+      <stop offset="1" stop-color="#6d28d9"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#driver)"/>
+  <circle cx="64" cy="63" r="29" fill="none" stroke="#fff" stroke-width="9"/>
+  <circle cx="64" cy="63" r="7" fill="#fff"/>
+  <path d="M37 52h54M64 70v24M52 88h24" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <circle cx="100" cy="100" r="18" fill="#a78bfa"/>
+  <text x="100" y="108" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="bold" fill="#221044">D</text>
+</svg>
