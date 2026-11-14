@@ -57,6 +57,14 @@ jobs:
       - name: Install Bubblewrap
         run: npm install --global @bubblewrap/cli
 
+      - name: Install Android build tools and support Bubblewrap SDK layout
+        run: |
+          sdkmanager --install "build-tools;36.1.0" "platforms;android-36"
+          # Bubblewrap still expects bin/sdkmanager directly under SDK root.
+          if [ ! -e "$ANDROID_HOME/bin" ]; then
+            ln -s "$(dirname "$(readlink -f "$(command -v sdkmanager)")")" "$ANDROID_HOME/bin"
+          fi
+
       - name: Configure Bubblewrap without interactive prompts
         run: |
           mkdir -p "$HOME/.bubblewrap"
