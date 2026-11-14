@@ -210,23 +210,23 @@ export default function Home() {
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="rounded-[2rem] bg-purple-700 p-8 text-white sm:p-10">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-purple-200">
-                For professional drivers
+                For Fountain Ride customers
               </p>
 
               <h2 className="mt-5 text-3xl font-black sm:text-4xl">
-                Your next opportunity starts here.
+                Your bookings, all in one place.
               </h2>
 
               <p className="mt-5 leading-8 text-purple-100">
-                Join Fountain Ride to connect with customers looking for
-                professional driving services.
+                Access your saved booking details and keep track of the
+                rides and drivers you request.
               </p>
 
               <Link
-                href="/driver/register"
+                href="/rider"
                 className="mt-8 inline-flex rounded-2xl bg-white px-6 py-4 font-bold text-purple-800"
               >
-                Join as a Driver
+                My Bookings
               </Link>
             </div>
 
@@ -306,7 +306,7 @@ export default function Home() {
                 href="/driver/login"
                 className="hover:text-purple-700"
               >
-                Driver Login
+                Driver Portal
               </Link>
             </div>
           </div>
