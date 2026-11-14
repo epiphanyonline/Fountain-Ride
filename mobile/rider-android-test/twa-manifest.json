@@ -1,0 +1,31 @@
+{
+  "packageId": "com.fountainride.rider.test",
+  "host": "fountainride.com",
+  "name": "Fountain Ride Test",
+  "launcherName": "FR Rider Test",
+  "display": "standalone",
+  "themeColor": "#075B46",
+  "themeColorDark": "#064837",
+  "navigationColor": "#F8FAF8",
+  "navigationColorDark": "#0B1C17",
+  "backgroundColor": "#F8FAF8",
+  "enableNotifications": false,
+  "startUrl": "/app",
+  "iconUrl": "https://fountainride.com/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./rider-test-upload-unused.jks",
+    "alias": "rider-test"
+  },
+  "appVersionCode": 1,
+  "appVersion": "0.1.0",
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://fountainride.com/rider-app-manifest.json",
+  "fallbackType": "customtabs",
+  "minSdkVersion": 24,
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "enableSiteSettingsShortcut": true
+}
