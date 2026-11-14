@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   description:
     'Fountain Ride Driver work centre. Manage driver jobs, availability, trips, profile and wallet.',
   manifest: '/manifest.json',
+  icons: {
+    icon: [{ url: '/driver-icon.svg', sizes: 'any', type: 'image/svg+xml' }],
+    shortcut: '/driver-icon.svg',
+    apple: '/icon-192.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
