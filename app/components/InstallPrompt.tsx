@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react'
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [showPrompt, setShowPrompt] = useState(false)
+  const [driverHost, setDriverHost] = useState(false)
 
   useEffect(() => {
+    setDriverHost(window.location.hostname.toLowerCase() === 'drivers.fountainride.com')
     const dismissed = localStorage.getItem('install_prompt_dismissed')
 
     if (dismissed === 'true') return
@@ -49,15 +51,17 @@ export default function InstallPrompt() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-bold text-purple-700">
-              Install Fountain Ride
+              {driverHost ? 'Install Fountain Ride Driver' : 'Install Fountain Ride'}
             </p>
 
             <h3 className="text-xl font-black mt-1">
-              Book rides faster
+              {driverHost ? 'Manage driver jobs faster' : 'Book rides faster'}
             </h3>
 
             <p className="text-sm text-gray-500 mt-2">
-              Add Fountain Ride to your phone home screen for faster booking and quick access.
+              {driverHost
+                ? 'Add Fountain Ride Driver to your home screen for your work dashboard, trips and wallet.'
+                : 'Add Fountain Ride to your phone home screen for faster booking and quick access.'}
             </p>
           </div>
 
