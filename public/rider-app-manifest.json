@@ -1,0 +1,47 @@
+{
+  "id": "/app",
+  "name": "Fountain Ride",
+  "short_name": "Fountain Ride",
+  "description": "Hire a driver for your car, or hire a car with a driver.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8faf8",
+  "theme_color": "#075b46",
+  "orientation": "portrait",
+  "categories": [
+    "travel",
+    "transportation"
+  ],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hire a Driver",
+      "short_name": "Driver",
+      "url": "/hire-driver"
+    },
+    {
+      "name": "Hire a Car",
+      "short_name": "Car",
+      "url": "/cars"
+    },
+    {
+      "name": "My Bookings",
+      "short_name": "Bookings",
+      "url": "/rider"
+    }
+  ]
+}
