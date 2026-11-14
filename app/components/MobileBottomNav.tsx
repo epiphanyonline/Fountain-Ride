@@ -26,6 +26,12 @@ export default function MobileBottomNav() {
   const pathname = usePathname()
   const [driverTrip, setDriverTrip] = useState(false)
 
+  const [driverHost, setDriverHost] = useState(false)
+
+  useEffect(() => {
+    setDriverHost(window.location.hostname.toLowerCase() === 'drivers.fountainride.com')
+  }, [pathname])
+
   useEffect(() => {
     setDriverTrip(
       pathname.startsWith('/trips/') &&
@@ -33,7 +39,7 @@ export default function MobileBottomNav() {
     )
   }, [pathname])
 
-  const driverPage = isDriverPage(pathname) || driverTrip
+  const driverPage = driverHost || isDriverPage(pathname) || driverTrip
   const items = driverPage ? driverItems : riderItems
 
   return (
