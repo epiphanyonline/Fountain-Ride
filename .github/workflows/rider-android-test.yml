@@ -57,8 +57,22 @@ jobs:
       - name: Install Bubblewrap
         run: npm install --global @bubblewrap/cli
 
-      - name: Point Bubblewrap at Java and Android SDK
-        run: bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
+      - name: Configure Bubblewrap without interactive prompts
+        run: |
+          mkdir -p "$HOME/.bubblewrap"
+          node - <<'NODE'
+          const fs = require('fs')
+          const os = require('os')
+          const path = require('path')
+          fs.writeFileSync(
+            path.join(os.homedir(), '.bubblewrap', 'config.json'),
+            JSON.stringify({
+              jdkPath: process.env.JAVA_HOME,
+              androidSdkPath: process.env.ANDROID_HOME,
+            }, null, 2)
+          )
+          NODE
+          bubblewrap doctor
 
       - name: Generate Android project from test manifest
         working-directory: mobile/rider-android-test
