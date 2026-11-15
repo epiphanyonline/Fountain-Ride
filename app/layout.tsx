@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Fountain Ride' },
   icons: {
-    icon: [{ url: '/fountain-ride-mark.svg?v=20261113', type: 'image/svg+xml', sizes: 'any' }],
-    shortcut: '/fountain-ride-mark.svg?v=20261113',
-    apple: '/icon-192.png',
+    icon: [{ url: '/fountain-ride-mark.svg?v=20261115', type: 'image/svg+xml', sizes: 'any' }],
+    shortcut: '/fountain-ride-mark.svg?v=20261115',
+    apple: '/icon-192.png?v=20261115',
   },
 }
 export const viewport: Viewport = { themeColor:'#6d28d9', width:'device-width', initialScale:1, viewportFit:'cover' }
