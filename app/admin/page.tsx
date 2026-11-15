@@ -142,9 +142,13 @@ export default function AdminDashboardPage() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-purple-700">
-                Fountain Ride Admin
-              </p>
+              <div className="flex items-center gap-3">
+                <img src="/fountain-ride-mark.svg" alt="" width={48} height={48}
+                  className="h-12 w-12 rounded-xl bg-white object-contain" />
+                <p className="text-sm font-bold text-purple-700">
+                  Fountain Ride Admin
+                </p>
+              </div>
 
               <h1 className="text-3xl md:text-5xl font-black mt-2">
                 Operations Control Centre
