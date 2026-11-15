@@ -131,12 +131,21 @@ export default function MarketplaceNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
       <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
-        <Link href={headingUrl} className="flex min-w-0 flex-col">
-          <span className="text-lg font-black tracking-tight text-purple-800 sm:text-xl">
-            {driverSurface ? 'Fountain Ride Driver' : 'Fountain Ride'}
-          </span>
-          <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-500">
-            {driverSurface ? 'Driver Work Centre' : 'Mobile Garage'}
+        <Link href={headingUrl} className="flex min-w-0 items-center gap-2.5">
+          <img
+            src="/fountain-ride-mark.svg"
+            alt=""
+            width={44}
+            height={44}
+            className="h-11 w-11 shrink-0 rounded-xl bg-white object-contain"
+          />
+          <span className="flex min-w-0 flex-col">
+            <span className="text-lg font-black tracking-tight text-purple-800 sm:text-xl">
+              {driverSurface ? 'Fountain Ride Driver' : 'Fountain Ride'}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-500">
+              {driverSurface ? 'Driver Work Centre' : 'Mobile Garage'}
+            </span>
           </span>
         </Link>
 

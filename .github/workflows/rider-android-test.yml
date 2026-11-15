@@ -9,9 +9,12 @@ on:
   push:
     branches:
       - mobile/rider-android-debug-build-20261114
+      - main
     paths:
       - '.github/workflows/rider-android-test.yml'
       - 'mobile/rider-android-test/**'
+      - 'public/icon-192.png'
+      - 'public/icon-512.png'
 
 permissions:
   contents: read

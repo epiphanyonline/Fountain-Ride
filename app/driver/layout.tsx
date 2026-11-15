@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: '/driver-icon.svg', sizes: 'any', type: 'image/svg+xml' }],
     shortcut: '/driver-icon.svg',
-    apple: '/icon-192.png',
+    apple: '/icon-192.png?v=20261115',
   },
   appleWebApp: {
     capable: true,
