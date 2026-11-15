@@ -62,7 +62,7 @@ export default function RiderAppHome() {
           <Link href="/app" aria-label="Fountain Ride home"
             className="flex min-w-0 items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#075b46]">
             <Image
-              src="/fountain-ride-mark.svg"
+              src="/fountain-ride-mark.svg?v=20261115"
               alt=""
               width={44}
               height={44}
